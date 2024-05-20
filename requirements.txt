@@ -1,5 +1,5 @@
 streamlit
-zipfile
+zipfile36
 tempfile
 os
 multiprocessing
