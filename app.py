@@ -65,7 +65,7 @@ def extract_zip(zip_file):
 def main():
     st.title("Zip File Extractor and Text Chunker")
 
-    uploaded_file = st.file_uploader("Upload a zip file", type="zip")
+    uploaded_file = st.file_uploader("Upload a zip file", type="zip",max_upload_size=10000*1024*1024)
     
     if uploaded_file is not None:
         chunks_data = extract_zip(uploaded_file)
