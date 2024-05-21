@@ -53,9 +53,10 @@ def extract_zip(zip_file):
                     pool.join()
 
                 # Collect results
-                for file, chunks in results:
-                    chunks_data.append((file, chunks))
-                    st.success(f"Processed {file}")
+                with st.expander("Processed file:"):
+                    for file, chunks in results:
+                        chunks_data.append((file, chunks))
+                        st.success(f"Processed {file}")
 
                 return chunks_data
     except zipfile.LargeZipFile:
@@ -71,12 +72,12 @@ def main():
         chunks_data = extract_zip(uploaded_file)
 
         if chunks_data:
-            st.write("Chunks Data:")
-            for file, chunks in chunks_data:
-                with st.expander(f"Chunks from {os.path.basename(file)}"):
-                    for i, chunk in enumerate(chunks):
-                        st.write(f"Chunk {i+1}:")
-                        st.write(chunk[:300])  # Display the first 300 characters of each chunk
+            with st.expander("Chunks Data:"):
+                for file, chunks in chunks_data:
+                    with st.expander(f"Chunks from {os.path.basename(file)}"):
+                        for i, chunk in enumerate(chunks):
+                            st.write(f"Chunk {i+1}:")
+                            st.write(chunk[:300])  # Display the first 300 characters of each chunk
 
 if __name__ == '__main__':
     main()
