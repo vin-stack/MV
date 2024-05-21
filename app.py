@@ -9,6 +9,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from PyPDF2 import PdfReader
 import docx
 import io
+import json
 
 class ChunkText:
     def __init__(self, size: int = 1300):
@@ -108,6 +109,39 @@ def main():
                         st.write(f"Status: {status_code}, Response: {response_text}")
                 else:
                     st.error("Please enter both collection name and type.")
+                    
+            if st.button("CHAT"):
+                query = input("Enter your query: ")
+                api_url = "https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/chat/" 
+
+                # Define the request payload
+                payload = {
+                    "collection": "MV001",
+                    "query": query,
+                    "entity": "CMV",
+                    "user_id": "chay@gmial.com",
+                    "user": "chay",
+                    "language": "ENGLISH"
+                }
+
+                try:
+                    # Send the POST request
+                    response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
+
+                    # Check if the request was successful
+                    if response.status_code == 200:
+                        # If the response is a streaming response, handle it accordingly
+                        for line in response.iter_lines():
+                            if line:
+                                decoded_line = line.decode('utf-8')
+                                print(f"Model: {decoded_line}")
+                    else:
+                        print(f"Error: Received status code {response.status_code}")
+                        print(f"Response: {response.text}")
+
+                except requests.exceptions.RequestException as e:
+                    print(f"Error: {e}")
+
 
 def chunk_text(text: str):
     # Initialize the RecursiveCharacterTextSplitter with chunk size 300
