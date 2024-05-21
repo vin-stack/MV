@@ -25,7 +25,7 @@ page_bg_img = f"""
 
 
 [data-testid="stSidebar"] > div:first-child {{
-background-image: url("https://i.ibb.co/5cZkrmX/Untitled-design.png");
+background-image: url("https://i.ibb.co/LzVCHgC/Untitled-desig.png");
 background-position: left; 
 background-repeat: no-repeat;
 background-attachment: local;
