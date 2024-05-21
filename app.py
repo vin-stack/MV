@@ -3,6 +3,7 @@ import zipfile
 import tempfile
 import os
 import requests
+import base64
 import json
 from collections import Counter
 from PyPDF2 import PdfReader
