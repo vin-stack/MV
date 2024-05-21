@@ -130,6 +130,7 @@ def example():
         if message["role"] == "assistant":
             
             st.write(f"**🤖Assistant:** {message['content']}")
+            st.markdown("----------------")
         elif message["role"] == "user":
             
             st.write(f"**👧🏻User:** {message['content']}")
