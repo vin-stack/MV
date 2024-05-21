@@ -101,32 +101,7 @@ def chat_with_model(query):
         response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
         if response.status_code == 200:
             response_json = response.json()
-            try:
-                response_json = response.json()
-            except ValueError:
-                st.error("Error: Response content is not valid JSON")
-                return "Error: Response content is not valid JSON"
-
-            # Log the response for debugging
-            st.write(f"API response: {response_json}")
-
-            # Check if response_json is None or empty
-            if not response_json:
-                st.error("Error: No response received from the model. The response is empty or None.")
-                return "Error: No response received from the model. The response is empty or None."
-
-            # Check if the response_json is a dictionary
-            if not isinstance(response_json, dict):
-                st.error("Error: Unexpected response format received from the model.")
-                return "Error: Unexpected response format received from the model."
-
-            # Check if 'response' key is in response_json
-            response_text = response_json.get("response")
-            if response_text is None:
-                st.error("Error: 'response' field is missing in the API response")
-                return "Error: 'response' field is missing in the API response"
-
-            return response_text
+            return response_json
         else:
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
     except requests.exceptions.RequestException as e:
