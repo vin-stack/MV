@@ -4,10 +4,12 @@ import tempfile
 import os
 import requests
 import json
+import time
 from collections import Counter
 from PyPDF2 import PdfReader
 import docx
-from streamlit_extras.stateful_chat import chat_input
+from streamlit_extras.stateful_chat import chat
+from streamlit_extras.stateful_chat import message as st_message
 
 def extract_all_files(zip_ref, temp_dir):
     files = []
@@ -118,11 +120,11 @@ def main():
 def chat_interface():
     with st.sidebar:
         st.title("Chat Interface")
-        query = chat_input("Enter your query:")
-        if query:
-            response = chat_with_model(query)
-            st.write("Response:")
-            st.write(response)
+        with chat(key="my_chat"):
+            query = st_message.input("Enter your query:")
+            if query:
+                response = chat_with_model(query)
+                st_message.add("assistant", response, avatar="🦜")
 
 if __name__ == '__main__':
     main()
