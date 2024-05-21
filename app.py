@@ -109,7 +109,7 @@ def chat_with_model(query):
 def main():
     with st.sidebar:
         choice = option_menu("MASTER VECTORS", ["Train MV","Chat"], 
-        icons=['upload','chat'], menu_icon="server", default_index=1,orientation="Vertical")
+        icons=['upload','chat'],default_index=0,orientation="Vertical")
     if choice == "Train MV":
         zip_extractor()
     elif choice == "Chat":
