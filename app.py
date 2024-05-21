@@ -73,7 +73,7 @@ def chat_with_model(query):
         return f"Error: {e}"
 def main():
     st.sidebar.title("Navigation")
-    app_mode = st.sidebar.selectbox("Choose the app mode", ["Zip Extractor", "Chat"])
+    app_mode = st.sidebar.radio("Choose the app mode", ["Zip Extractor", "Chat"])
 
     if app_mode == "Zip Extractor":
         zip_extractor()
