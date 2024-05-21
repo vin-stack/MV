@@ -7,6 +7,7 @@ import json
 from collections import Counter
 from PyPDF2 import PdfReader
 import docx
+from streamlit_extras.stateful_chat import message as st_message, chat_input
 
 def extract_all_files(zip_ref, temp_dir):
     files = []
@@ -112,24 +113,27 @@ def main():
                 else:
                     st.error("Please enter both collection name and type.")
             
-            example()
+            chat_interface()
 
-def example():
+def chat_interface():
     chat_history = st.session_state.get('chat_history', [])
 
-    query = st.text_input("Enter your query:")
+    if "chat_history" not in st.session_state:
+        st.session_state["chat_history"] = []
 
-    if query:
-        chat_history.append({"role": "user", "content": query})
-        response = chat_with_model(query)
-        chat_history.append({"role": "assistant", "content": response})
-        st.session_state['chat_history'] = chat_history
+    with st.sidebar:
+        if query := chat_input("Enter your query:"):
+            st_message("user", query, is_user=True)
+            response = chat_with_model(query)
+            st.session_state["chat_history"].append({"role": "user", "content": query})
+            st.session_state["chat_history"].append({"role": "assistant", "content": response})
+            st_message("assistant", response)
 
-    for message in chat_history:
+    for message in st.session_state["chat_history"]:
         if message["role"] == "user":
-            st.write(f"**User:** {message['content']}")
+            st_message("user", message["content"], is_user=True)
         else:
-            st.write(f"**Assistant:** {message['content']}")
+            st_message("assistant", message["content"])
 
 if __name__ == '__main__':
     main()
