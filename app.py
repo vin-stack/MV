@@ -107,5 +107,12 @@ def main():
                 else:
                     st.error("Please enter both collection name and type.")
 
+def chunk_text(text: str):
+    # Initialize the RecursiveCharacterTextSplitter with chunk size 300
+    rcts = RecursiveCharacterTextSplitter(chunk_overlap=0, chunk_size=300, length_function=len)
+    # Split the text into chunks
+    chunked_text = rcts.split_text(text)
+    return chunked_text
+
 if __name__ == '__main__':
     main()
