@@ -25,7 +25,7 @@ page_bg_img = f"""
 
 
 [data-testid="stSidebar"] > div:first-child {{
-background-image: url("https://d2gg9evh47fn9z.cloudfront.net/1600px_COLOURBOX11140963.jpg");
+background-image: url("https://photos.fife.usercontent.google.com/pw/AP1GczNA5AIeN3X6fgq8fbXzpGx8lcl6-TSEOCQBFW0mmGVSV0cecaQTzc0e=w970-h970-s-no-gm?authuser=0");
 background-position: left; 
 background-repeat: no-repeat;
 background-attachment: local;
