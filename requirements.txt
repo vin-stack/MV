@@ -2,3 +2,4 @@ streamlit
 streamlit-extras
 langchain
 PyPDF2
+python-docx
