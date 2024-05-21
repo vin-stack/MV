@@ -71,8 +71,17 @@ def chat_with_model(query):
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
-
 def main():
+    st.sidebar.title("Navigation")
+    app_mode = st.sidebar.selectbox("Choose the app mode", ["Zip Extractor", "Chat"])
+
+    if app_mode == "Zip Extractor":
+        zip_extractor()
+    elif app_mode == "Chat":
+        example()
+
+
+def zip_extractor():
     st.title("Zip File Extractor and Text Chunker")
 
     uploaded_file = st.file_uploader("Upload a zip file", type="zip")
@@ -112,7 +121,7 @@ def main():
                 else:
                     st.error("Please enter both collection name and type.")
             
-            example()
+           
 
 def example():
     chat_history = st.session_state.get('chat_history', [])
