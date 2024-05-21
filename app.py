@@ -4,6 +4,7 @@ import tempfile
 import os
 import requests
 import json
+from collections import Counter
 from PyPDF2 import PdfReader
 import docx
 
@@ -116,7 +117,7 @@ def main():
 def example():
     chat_history = st.session_state.get('chat_history', [])
 
-    query = st.chat_input("Enter your query:")
+    query = st.text_input("Enter your query:")
 
     if query:
         chat_history.append({"role": "user", "content": query})
@@ -126,9 +127,9 @@ def example():
 
     for message in chat_history:
         if message["role"] == "user":
-            st.chat_message(message["content"])
+            st.write(f"**User:** {message['content']}")
         else:
-            st.chat_message(message["content"])
+            st.write(f"**Assistant:** {message['content']}")
 
 if __name__ == '__main__':
     main()
