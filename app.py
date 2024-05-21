@@ -7,8 +7,6 @@ import json
 from collections import Counter
 from PyPDF2 import PdfReader
 import docx
-from streamlit_extras.stateful_chat import chat, add_message
-import time
 
 def extract_all_files(zip_ref, temp_dir):
     files = []
@@ -90,15 +88,26 @@ def main():
                         st.write(f"Status: {status_code}, Response: {response_text}")
                 else:
                     st.error("Please enter both collection name and type.")
-                    
+            
             example()
 
 def example():
-    with chat(key="my_chat"):
-        if prompt := st.chat_input("Enter your query:"):
-            add_message("user", prompt, avatar="🧑‍💻")
-            response = chat_with_model(prompt)
-            add_message("assistant", response, avatar="🦜")
+    chat_history = []
+    if 'chat_history' not in st.session_state:
+        st.session_state['chat_history'] = chat_history
+
+    query = st.chat_input("Enter your query:")
+
+    if query:
+        st.session_state['chat_history'].append({"role": "user", "content": query})
+        response = chat_with_model(query)
+        st.session_state['chat_history'].append({"role": "assistant", "content": response})
+
+    for message in st.session_state['chat_history']:
+        if message["role"] == "user":
+            st.chat_message("user", message["content"], avatar="🧑‍💻")
+        else:
+            st.chat_message("assistant", message["content"], avatar="🦜")
 
 def extract_text(file):
     text = ""
