@@ -9,8 +9,7 @@ from collections import Counter
 from PyPDF2 import PdfReader
 import docx
 from streamlit_option_menu import  option_menu
-from streamlit_extras.customize_running import center_running
-import time
+
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
@@ -145,8 +144,6 @@ def zip_extractor():
             doc_type = st.text_input("Enter Type")
             
             if st.button("Train"):
-                center_running()
-                time.sleep(2)    
                 if collection and doc_type:
                     # Filter selected files
                     to_process = [(file, extract_text(file), collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
@@ -158,7 +155,8 @@ def zip_extractor():
                     
                     # Display results
                     for status_code, response_text in results:
-                        st.write(f"Status: {status_code}, Response: {response_text}")
+                        stw=f"Status: {status_code}, Response: {response_text}"
+                        st.success(stw, icon="✅")
                 else:
                     st.error("Please enter both collection name and type.")
             
