@@ -1,2 +1,13 @@
 [server]
 maxUploadSize = 5000
+
+[ui]
+hideTopBar = true
+
+
+
+[theme]
+primaryColor="#ef7247"
+backgroundColor="#CCE1F1"
+secondaryBackgroundColor="#ffffff"
+textColor="#181515"
