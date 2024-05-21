@@ -149,7 +149,6 @@ def main():
                     # Get the response from the model
                     response = chat_with_model(query)
                     # Display the response in the Streamlit app
-                    st.write(response)
                     st.text_area("Response from the Model:", response, height=300)
                 else:
                     st.warning("Please enter a query.")
