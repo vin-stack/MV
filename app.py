@@ -72,13 +72,16 @@ def chat_with_model(query):
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
 def main():
-    st.sidebar.title("Navigation")
-    app_mode = st.sidebar.radio("Choose the app mode", ["Zip Extractor", "Chat"])
-
-    if app_mode == "Zip Extractor":
+    with st.sidebar:
+    		choice = option_menu("SQLSPACE", ["Sign Up","Sign In"], 
+        	icons=['person','key'], menu_icon="server", default_index=1,orientation="horizontal")
+    if choice == "Zip Extractor":
         zip_extractor()
-    elif app_mode == "Chat":
+    elif choice == "Chat":
         example()
+   
+    	
+	
 
 
 def zip_extractor():
