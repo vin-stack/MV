@@ -96,10 +96,11 @@ def main():
             st.write(df)
 
             # Train button
+            collection = st.text_input("Enter Collection Name")
+            doc_type = st.text_input("Enter Type")
             if st.button("Train"):
                 # Get user input for collection and type
-                collection = st.text_input("Enter Collection Name")
-                doc_type = st.text_input("Enter Type")
+                
                 
                 if collection and doc_type:
                     # Filter selected files
