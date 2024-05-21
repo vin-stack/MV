@@ -125,7 +125,7 @@ def example():
         chat_history.append({"role": "assistant", "content": response})
         st.session_state['chat_history'] = chat_history
 
-    for message in chat_history:
+    for message in reversedchat_history:
         if message["role"] == "assistant":
             
             st.write(f"**Assistant:** {message['content']}")
