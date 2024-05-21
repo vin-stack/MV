@@ -100,34 +100,12 @@ def chat_with_model(query):
     try:
         response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
         if response.status_code == 200:
-            try:
-                response_json = response.json()
-
-            # Log the response for debugging
-            st.write(f"API response: {response_json}")
-
-            if response_json is None:
-                st.error("Error: No response received from the model.")
-                return "Error: No response received from the model."
-
-            if not isinstance(response_json, dict):
-                st.error("Error: Unexpected response format received from the model.")
-                return "Error: Unexpected response format received from the model."
-
-            response_text = response_json.get("response", "No response field in JSON")
-
-            if response_text is None:
-                st.error("Error: 'response' field is missing in the API response")
-                return "Error: 'response' field is missing in the API response"
-
+            response_text = response.text
             return response_text
         else:
-            st.error(f"Error: Received status code {response.status_code}\nResponse: {response.text}")
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
     except requests.exceptions.RequestException as e:
-        st.error(f"Error: {e}")
         return f"Error: {e}"
-
 def main():
     with st.sidebar:
         choice = option_menu("MASTER VECTORS", ["Train MV","Chat"], 
