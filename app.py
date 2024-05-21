@@ -11,6 +11,38 @@ from streamlit_option_menu import  option_menu
 from streamlit_extras.customize_running import center_running
 import time
 
+def get_img_as_base64(file):
+    with open(file, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+
+img = get_img_as_base64("image.jpg")
+
+page_bg_img = f"""
+<style>
+
+
+[data-testid="stSidebar"] > div:first-child {{
+background-image: url("https://d2gg9evh47fn9z.cloudfront.net/1600px_COLOURBOX11140963.jpg");
+background-position: left; 
+background-repeat: no-repeat;
+background-attachment: local;
+}}
+
+[data-testid="stHeader"] {{
+background: rgba(0,0,0,0);
+}}
+
+[data-testid="stToolbar"] {{
+right: 2rem;
+}}
+</style>
+"""
+
+st.markdown(page_bg_img, unsafe_allow_html=True)
+# Fxn Make Execution
+
 def extract_all_files(zip_ref, temp_dir):
     files = []
     for root, _, filenames in os.walk(temp_dir):
