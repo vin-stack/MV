@@ -93,7 +93,7 @@ def chat_with_model(query):
         "collection": "MV001",
         "query": query,
         "entity": "CMV",
-        "user_id": "chay@gmial.com",
+        "user_id": "chay@gmail.com",
         "user": "chay",
         "language": "ENGLISH"
     }
