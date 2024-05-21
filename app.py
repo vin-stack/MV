@@ -4,6 +4,7 @@ import tempfile
 import os
 import requests
 import json
+import base64
 from collections import Counter
 from PyPDF2 import PdfReader
 import docx
