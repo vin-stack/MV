@@ -100,11 +100,16 @@ def chat_with_model(query):
     try:
         response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
         if response.status_code == 200:
-            response_text = response.text
+            response_json = response.json()
+            # Log the response for debugging
+            st.write(f"API response: {response_json}")
+            response_text = response_json.get("response", "No response field in JSON")
             return response_text
         else:
+            st.error(f"Error: Received status code {response.status_code}\nResponse: {response.text}")
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
     except requests.exceptions.RequestException as e:
+        st.error(f"Error: {e}")
         return f"Error: {e}"
 def main():
     with st.sidebar:
