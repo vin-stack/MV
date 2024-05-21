@@ -3,3 +3,4 @@ streamlit-extras
 langchain
 PyPDF2
 python-docx
+streamlit_option_menu
