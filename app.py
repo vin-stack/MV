@@ -67,6 +67,37 @@ def post_to_api(file, chunks, collection, doc_type):
     response = requests.post(url, json=data)
     return response.status_code, response.text
 
+def chat_with_model(query):
+    query = st.text_input("Enter your query: ")
+    api_url = "https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/chat/"
+    # Define the request payload
+    payload = {
+        "collection": "MV001",
+        "query": query,
+        "entity": "CMV",
+        "user_id": "chay@gmial.com",
+        "user": "chay",
+        "language": "ENGLISH"
+    }
+    
+    try:
+        # Send the POST request
+        response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
+        # Check if the request was successful
+        if response.status_code == 200:
+            # If the response is a streaming response, handle it accordingly
+            for line in response.iter_lines():
+                if line:
+                    decoded_line = line.decode('utf-8')
+                    print(f"Model: {decoded_line}")
+        else:
+            print(f"Error: Received status code {response.status_code}")
+            print(f"Response: {response.text}")
+    
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
+
+
 def main():
     st.title("Zip File Extractor and Text Chunker")
 
@@ -110,39 +141,16 @@ def main():
                 else:
                     st.error("Please enter both collection name and type.")
                     
-            if st.button("CHAT"):
-                query = st.text_input("Enter your query: ")
-                api_url = "https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/chat/" 
+            query = st.text_input("Enter your query:")
 
-                # Define the request payload
-                payload = {
-                    "collection": "MV001",
-                    "query": query,
-                    "entity": "CMV",
-                    "user_id": "chay@gmial.com",
-                    "user": "chay",
-                    "language": "ENGLISH"
-                }
-
-                try:
-                    # Send the POST request
-                    response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-
-                    # Check if the request was successful
-                    if response.status_code == 200:
-                        # If the response is a streaming response, handle it accordingly
-                        for line in response.iter_lines():
-                            if line:
-                                decoded_line = line.decode('utf-8')
-                                print(f"Model: {decoded_line}")
-                    else:
-                        print(f"Error: Received status code {response.status_code}")
-                        print(f"Response: {response.text}")
+            if st.button("Submit"):
+                if query:
+                    with st.spinner("Waiting for response..."):
+                        response = chat_with_model(query)
                         st.text_area("Response:", value=response, height=200)
-
-                except requests.exceptions.RequestException as e:
-                    print(f"Error: {e}")
-
+                else:
+                    st.warning("Please enter a query.")
+                        
 
 def chunk_text(text: str):
     # Initialize the RecursiveCharacterTextSplitter with chunk size 300
