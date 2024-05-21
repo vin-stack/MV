@@ -4,7 +4,6 @@ import tempfile
 import os
 import requests
 import json
-from collections import Counter
 from PyPDF2 import PdfReader
 import docx
 
@@ -25,6 +24,33 @@ def extract_zip(zip_file):
     except zipfile.LargeZipFile:
         st.error('Error: File size is too large to open')
 
+def extract_text(file):
+    text = ""
+    file_ext = os.path.splitext(file)[1].lower()
+    if file_ext == ".docx":
+        document = docx.Document(file)
+        for paragraph in document.paragraphs:
+            text += paragraph.text + "\n"
+    elif file_ext == ".txt":
+        with open(file, "r", encoding="utf-8") as f:
+            text = f.read()
+    elif file_ext == ".pdf":
+        reader = PdfReader(file)
+        for page in reader.pages:
+            text += page.extract_text() + "\n"
+    return text
+
+def post_to_api(file, chunks, collection, doc_type):
+    url = 'https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/add-master-object/file/'
+    data = {
+        'chunks': chunks,
+        'filename': os.path.basename(file),
+        'collection': collection,
+        'type': doc_type
+    }
+    response = requests.post(url, json=data)
+    return response.status_code, response.text
+
 def chat_with_model(query):
     api_url = "https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/chat/"
     payload = {
@@ -38,11 +64,7 @@ def chat_with_model(query):
     try:
         response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
         if response.status_code == 200:
-            response_text = ""
-            for line in response.iter_lines():
-                if line:
-                    decoded_line = line.decode('utf-8')
-                    response_text += decoded_line + "\n"
+            response_text = response.text
             return response_text
         else:
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
@@ -92,49 +114,21 @@ def main():
             example()
 
 def example():
-    chat_history = []
-    if 'chat_history' not in st.session_state:
-        st.session_state['chat_history'] = chat_history
+    chat_history = st.session_state.get('chat_history', [])
 
     query = st.chat_input("Enter your query:")
 
     if query:
-        st.session_state['chat_history'].append({"role": "user", "content": query})
+        chat_history.append({"role": "user", "content": query})
         response = chat_with_model(query)
-        st.session_state['chat_history'].append({"role": "assistant", "content": response})
+        chat_history.append({"role": "assistant", "content": response})
+        st.session_state['chat_history'] = chat_history
 
-    for message in st.session_state['chat_history']:
+    for message in chat_history:
         if message["role"] == "user":
-            st.chat_message("user", message["content"], avatar="🧑‍💻")
+            st.chat_message(message["content"])
         else:
-            st.chat_message("assistant", message["content"], avatar="🦜")
-
-def extract_text(file):
-    text = ""
-    file_ext = os.path.splitext(file)[1].lower()
-    if file_ext == ".docx":
-        document = docx.Document(file)
-        for paragraph in document.paragraphs:
-            text += paragraph.text + "\n"
-    elif file_ext == ".txt":
-        with open(file, "r", encoding="utf-8") as f:
-            text = f.read()
-    elif file_ext == ".pdf":
-        reader = PdfReader(file)
-        for page in reader.pages:
-            text += page.extract_text() + "\n"
-    return text
-
-def post_to_api(file, chunks, collection, doc_type):
-    url = 'https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/add-master-object/file/'
-    data = {
-        'chunks': chunks,
-        'filename': os.path.basename(file),
-        'collection': collection,
-        'type': doc_type
-    }
-    response = requests.post(url, json=data)
-    return response.status_code, response.text
+            st.chat_message(message["content"])
 
 if __name__ == '__main__':
     main()
