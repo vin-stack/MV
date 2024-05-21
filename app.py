@@ -67,7 +67,7 @@ def extract_zip(zip_file):
 def post_to_api(file, chunks, collection, doc_type):
     url = 'https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/add-master-object/file/'
     data = {
-        'document': chunks,
+        'file_upload': chunks,
         'filename': os.path.basename(file),
         'collection': collection,
         'type': doc_type
@@ -85,32 +85,34 @@ def main():
 
         if chunks_data:
             st.write("Chunks Data:")
-            # Create a table to display file info and allow user to select collection and type
+            # Create a table to display file info and allow user to select files
             selected_files = []
             table_data = []
-            collections = []
-            types = []
             for file, chunks in chunks_data:
                 file_basename = os.path.basename(file)
-                is_selected = st.checkbox(f"Select {file_basename}", key=f"select_{file_basename}")
-                collections.append(st.text_input(f"Collection for {file_basename}", key=f"collection_{file_basename}"))
-                types.append(st.text_input(f"Type for {file_basename}", key=f"type_{file_basename}"))
-                table_data.append((is_selected, file_basename, chunks, collections[-1], types[-1]))
+                table_data.append((file_basename, len(chunks), st.checkbox(f"Select {file_basename}", key=f"select_{file_basename}")))
             
-            df = pd.DataFrame(table_data, columns=['Select', 'Filename', 'Chunks', 'Collection', 'Type'])
+            df = pd.DataFrame(table_data, columns=['Filename', 'Chunks', 'Select'])
             st.write(df)
 
             # Train button
             if st.button("Train"):
-                # Filter selected files
-                to_process = [(file, chunks, collections[i], types[i]) for i, (selected, file, chunks, _, _) in enumerate(table_data) if selected]
-
-                with multiprocessing.Pool() as pool:
-                    results = pool.starmap(post_to_api, to_process)
+                # Get user input for collection and type
+                collection = st.text_input("Enter Collection Name")
+                doc_type = st.text_input("Enter Type")
                 
-                # Display results
-                for status_code, response_text in results:
-                    st.write(f"Status: {status_code}, Response: {response_text}")
+                if collection and doc_type:
+                    # Filter selected files
+                    to_process = [(file, chunks, collection, doc_type) for i, (file, chunks, selected) in enumerate(table_data) if selected]
+
+                    with multiprocessing.Pool() as pool:
+                        results = pool.starmap(post_to_api, to_process)
+                    
+                    # Display results
+                    for status_code, response_text in results:
+                        st.write(f"Status: {status_code}, Response: {response_text}")
+                else:
+                    st.error("Please enter both collection name and type.")
 
 if __name__ == '__main__':
     main()
