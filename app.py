@@ -3,9 +3,8 @@ import zipfile
 import tempfile
 import os
 import requests
-import pandas as pd
-from collections import Counter
 import re
+from collections import Counter
 
 def process_file(file):
     # Extract text and chunk it in 300 words
@@ -57,7 +56,7 @@ def extract_zip(zip_file):
 def post_to_api(file, chunks, collection, doc_type):
     url = 'https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/add-master-object/file/'
     data = {
-        'document': chunks,
+        'chunks': chunks,
         'filename': os.path.basename(file),
         'collection': collection,
         'type': doc_type
