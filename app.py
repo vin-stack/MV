@@ -66,10 +66,8 @@ def post_to_api(file, chunks, collection, doc_type):
     }
     response = requests.post(url, json=data)
     return response.status_code, response.text
-
+api_url="https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/chat/"
 def chat_with_model(query):
-    query = st.text_input("Enter your query: ")
-    api_url = "https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/chat/"
     # Define the request payload
     payload = {
         "collection": "MV001",
@@ -79,23 +77,25 @@ def chat_with_model(query):
         "user": "chay",
         "language": "ENGLISH"
     }
-    
+
     try:
         # Send the POST request
         response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
+
         # Check if the request was successful
         if response.status_code == 200:
             # If the response is a streaming response, handle it accordingly
+            response_text = ""
             for line in response.iter_lines():
                 if line:
                     decoded_line = line.decode('utf-8')
-                    print(f"Model: {decoded_line}")
+                    response_text += decoded_line + "\n"
+            return response_text
         else:
-            print(f"Error: Received status code {response.status_code}")
-            print(f"Response: {response.text}")
-    
+            return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
+
     except requests.exceptions.RequestException as e:
-        print(f"Error: {e}")
+        return f"Error: {e}"
 
 
 def main():
@@ -143,14 +143,16 @@ def main():
                     
             query = st.text_input("Enter your query:")
 
+            # Button to submit the query
             if st.button("Submit"):
                 if query:
-                    with st.spinner("Waiting for response..."):
-                        response = chat_with_model(query)
-                        st.text_area("Response:", value=response, height=200)
+                    # Get the response from the model
+                    response = chat_with_model(query)
+                    # Display the response in the Streamlit app
+                    st.write(response)
+                    st.text_area("Response from the Model:", response, height=300)
                 else:
                     st.warning("Please enter a query.")
-                        
 
 def chunk_text(text: str):
     # Initialize the RecursiveCharacterTextSplitter with chunk size 300
