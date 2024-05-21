@@ -121,11 +121,11 @@ def chat_interface():
     with st.sidebar:
         st.title("Chat Interface")
         with chat(key="my_chat"):
-            query = st.text_input("Enter your query:")
-            if st.button("Submit"):
+            if query := st.chat_input():
+                add_message("user", query, avatar="🧑‍💻")
                 if query:
                     response = chat_with_model(query)
-                    st_message.add("assistant", response, avatar="🦜")
+                add_message("assistant", "Echo: ", response, avatar="🦜")
 
 if __name__ == '__main__':
     main()
