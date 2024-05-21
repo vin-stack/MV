@@ -1,8 +1,6 @@
 [server]
 maxUploadSize = 5000
 
-[ui]
-hideTopBar = true
 
 
 
