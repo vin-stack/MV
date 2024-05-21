@@ -7,6 +7,7 @@ import requests
 import pandas as pd
 from collections import Counter
 import re
+from streamlit_extras.dataframe_explorer import dataframe_explorer
 
 def process_file(file):
     # Extract text and chunk it in 300 words
@@ -67,7 +68,7 @@ def extract_zip(zip_file):
 def post_to_api(file, chunks, collection, doc_type):
     url = 'https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/add-master-object/file/'
     data = {
-        'file_upload': chunks,
+        'document': chunks,
         'filename': os.path.basename(file),
         'collection': collection,
         'type': doc_type
@@ -86,25 +87,24 @@ def main():
         if chunks_data:
             st.write("Chunks Data:")
             # Create a table to display file info and allow user to select files
-            selected_files = []
             table_data = []
             for file, chunks in chunks_data:
                 file_basename = os.path.basename(file)
-                table_data.append((file_basename, len(chunks), st.checkbox(f"Select {file_basename}", key=f"select_{file_basename}")))
+                table_data.append({'Select': False, 'Filename': file_basename, 'Chunks': len(chunks)})
             
-            df = pd.DataFrame(table_data, columns=['Filename', 'Chunks', 'Select'])
-            st.write(df)
+            df = pd.DataFrame(table_data)
 
-            # Train button
+            # Use the streamlit-extras dataframe explorer for interactive table
+            edited_df = dataframe_explorer(df)
+
+            # Get user input for collection and type
             collection = st.text_input("Enter Collection Name")
             doc_type = st.text_input("Enter Type")
+            
             if st.button("Train"):
-                # Get user input for collection and type
-                
-                
                 if collection and doc_type:
                     # Filter selected files
-                    to_process = [(file, chunks, collection, doc_type) for i, (file, chunks, selected) in enumerate(table_data) if selected]
+                    to_process = [(row['Filename'], chunks_data[i][1], collection, doc_type) for i, row in edited_df.iterrows() if row['Select']]
 
                     with multiprocessing.Pool() as pool:
                         results = pool.starmap(post_to_api, to_process)
