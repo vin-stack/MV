@@ -129,10 +129,10 @@ def example():
     for message in reversed(chat_history):
         if message["role"] == "assistant":
             
-            st.write(f"**Assistant:** {message['content']}")
+            st.write(f"**🤖Assistant:** {message['content']}")
         elif message["role"] == "user":
             
-            st.write(f"**User:** {message['content']}")
+            st.write(f"**👧🏻User:** {message['content']}")
 
 if __name__ == '__main__':
     main()
