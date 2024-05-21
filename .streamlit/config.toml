@@ -6,8 +6,9 @@ hideTopBar = true
 
 
 
+
 [theme]
-primaryColor="#ef7247"
-backgroundColor="#CCE1F1"
+primaryColor="#3d8fea"
+backgroundColor="#cce1f1"
 secondaryBackgroundColor="#ffffff"
 textColor="#181515"
