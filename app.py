@@ -11,7 +11,6 @@ from streamlit_option_menu import  option_menu
 from streamlit_extras.customize_running import center_running
 import time
 
-
 def extract_all_files(zip_ref, temp_dir):
     files = []
     for root, _, filenames in os.walk(temp_dir):
@@ -75,7 +74,16 @@ def chat_with_model(query):
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
-
+def main():
+    with st.sidebar:
+        choice = option_menu("MASTER VECTORS", ["Train MV","Chat"], 
+        icons=['upload','chat'], menu_icon="server", default_index=1,orientation="Vertical")
+    if choice == "Train MV":
+        zip_extractor()
+    elif choice == "Chat":
+        example()
+   
+    	
 	
 
 
@@ -143,18 +151,6 @@ def example():
         elif message["role"] == "user":
             
             st.write(f"**👧🏻User:** {message['content']}")
-            
-def main():
-    with st.sidebar:
-        choice = option_menu("MASTER VECTORS", ["Train MV","Chat"], 
-                             
-        icons=['upload','chat'], menu_icon="server", default_index=1,orientation="Vertical")
-        if choice == "Train MV":
-            zip_extractor()
-        elif choice == "Chat":
-            example()
-   
-    	
 
 if __name__ == '__main__':
     main()
