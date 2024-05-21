@@ -137,7 +137,7 @@ def main():
                                 print(f"Model: {decoded_line}")
                     else:
                         print(f"Error: Received status code {response.status_code}")
-                        print(f"Response: {response.text}")
+                        st.write(f"Response: {response.text}")
 
                 except requests.exceptions.RequestException as e:
                     print(f"Error: {e}")
