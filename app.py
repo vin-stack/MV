@@ -121,8 +121,9 @@ def example():
 
     if query:
         response = chat_with_model(query)
-        chat_history.append({"role": "user", "content": query})
         chat_history.append({"role": "assistant", "content": response})
+        chat_history.append({"role": "user", "content": query})
+        
         st.session_state['chat_history'] = chat_history
 
     for message in reversed(chat_history):
