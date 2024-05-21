@@ -2,7 +2,6 @@ import streamlit as st
 import zipfile
 import tempfile
 import os
-import multiprocessing
 import requests
 import pandas as pd
 from collections import Counter
@@ -46,21 +45,12 @@ def extract_zip(zip_file):
             for file_type, count in file_types.items():
                 st.write(f"{file_type}: {count}")
 
-            # Ask for permission to extract text and chunk it
-            if st.checkbox("Do you want to extract text and chunk it?"):
-                # Use multiprocessing to handle extraction and chunking in parallel
-                with st.spinner('Processing files...'):
-                    pool = multiprocessing.Pool()
-                    results = pool.map(process_file, files)
-                    pool.close()
-                    pool.join()
+            # Process files without multiprocessing
+            for file in files:
+                file, chunks = process_file(file)
+                chunks_data.append((file, chunks))
+                st.success(f"Processed {file}")
 
-                # Collect results
-                for file, chunks in results:
-                    chunks_data.append((file, chunks))
-                    st.success(f"Processed {file}")
-
-                return chunks_data
     except zipfile.LargeZipFile:
         st.error('Error: File size is too large to open')
     return chunks_data
@@ -104,10 +94,12 @@ def main():
             if st.button("Train"):
                 if collection and doc_type:
                     # Filter selected files
-                    to_process = [(row['Filename'], chunks_data[i][1], collection, doc_type) for i, row in edited_df.iterrows() if row['Select']]
+                    to_process = [(row['Filename'], next(chunks for file, chunks in chunks_data if os.path.basename(file) == row['Filename']), collection, doc_type) for _, row in edited_df.iterrows() if row['Select']]
 
-                    with multiprocessing.Pool() as pool:
-                        results = pool.starmap(post_to_api, to_process)
+                    results = []
+                    for file, chunks, collection, doc_type in to_process:
+                        status_code, response_text = post_to_api(file, chunks, collection, doc_type)
+                        results.append((status_code, response_text))
                     
                     # Display results
                     for status_code, response_text in results:
