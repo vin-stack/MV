@@ -25,7 +25,7 @@ page_bg_img = f"""
 
 
 [data-testid="stSidebar"] > div:first-child {{
-background-image: url("https://www.canva.com/design/DAGF3T8Y9_U/xvIHmke-dKZzxWA_ylSBvw/view");
+background-image: url("design.png");
 background-position: left; 
 background-repeat: no-repeat;
 background-attachment: local;
