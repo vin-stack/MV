@@ -4,12 +4,9 @@ import tempfile
 import os
 import requests
 import json
-import time
 from collections import Counter
 from PyPDF2 import PdfReader
 import docx
-from streamlit_extras.stateful_chat import chat
-
 
 def extract_all_files(zip_ref, temp_dir):
     files = []
@@ -115,17 +112,24 @@ def main():
                 else:
                     st.error("Please enter both collection name and type.")
             
-            chat_interface()
+            example()
 
-def chat_interface():
-    with st.sidebar:
-        st.title("Chat Interface")
-        with chat(key="my_chat"):
-            if query := st.chat_input():
-                add_message("user", query, avatar="🧑‍💻")
-                if query:
-                    response = chat_with_model(query)
-                add_message("assistant", "Echo: ", response, avatar="🦜")
+def example():
+    chat_history = st.session_state.get('chat_history', [])
+
+    query = st.text_input("Enter your query:")
+
+    if query:
+        chat_history.append({"role": "user", "content": query})
+        response = chat_with_model(query)
+        chat_history.append({"role": "assistant", "content": response})
+        st.session_state['chat_history'] = chat_history
+
+    for message in chat_history:
+        if message["role"] == "user":
+            st.write(f"**User:** {message['content']}")
+        else:
+            st.write(f"**Assistant:** {message['content']}")
 
 if __name__ == '__main__':
     main()
