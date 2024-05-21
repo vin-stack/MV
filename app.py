@@ -6,7 +6,6 @@ import requests
 import pandas as pd
 from collections import Counter
 import re
-from streamlit_extras.dataframe_explorer import dataframe_explorer
 
 def process_file(file):
     # Extract text and chunk it in 300 words
@@ -76,22 +75,17 @@ def main():
 
         if chunks_data:
             st.write("Chunks Data:")
+            file_names = []
             for file, chunks in chunks_data:
-                with st.expander(f"Chunks from {os.path.basename(file)}"):
+                file_basename = os.path.basename(file)
+                file_names.append(file_basename)
+                with st.expander(f"Chunks from {file_basename}"):
                     for i, chunk in enumerate(chunks):
                         st.write(f"Chunk {i+1}:")
                         st.write(chunk[:300])
 
-            # Create a table to display file info and allow user to select files
-            table_data = []
-            for file, chunks in chunks_data:
-                file_basename = os.path.basename(file)
-                table_data.append({'Select': False, 'Filename': file_basename, 'Chunks': len(chunks)})
-            
-            df = pd.DataFrame(table_data)
-
-            # Use the streamlit-extras dataframe explorer for interactive table
-            edited_df = dataframe_explorer(df)
+            # Use a multiselect widget for file selection
+            selected_files = st.multiselect("Select files to train", file_names)
 
             # Get user input for collection and type
             collection = st.text_input("Enter Collection Name")
@@ -100,7 +94,7 @@ def main():
             if st.button("Train"):
                 if collection and doc_type:
                     # Filter selected files
-                    to_process = [(row['Filename'], next(chunks for file, chunks in chunks_data if os.path.basename(file) == row['Filename']), collection, doc_type) for _, row in edited_df.iterrows() if row['Select']]
+                    to_process = [(file, chunks, collection, doc_type) for file, chunks in chunks_data if os.path.basename(file) in selected_files]
 
                     results = []
                     for file, chunks, collection, doc_type in to_process:
