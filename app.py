@@ -76,15 +76,10 @@ def main():
 
         if text_data:
             st.write("Text Data:")
-            file_names = []
-            for file, text in text_data:
-                file_basename = os.path.basename(file)
-                file_names.append(file_basename)
-                with st.expander(f"Text from {file_basename}"):
-                    st.write(text)
-
-            # Use a multiselect widget for file selection
-            selected_files = st.multiselect("Select files to train", file_names)
+            file_names = [os.path.basename(file) for file, _ in text_data]
+            selected_files = st.multiselect("Select files to train", ["All"] + file_names)
+            if "All" in selected_files:
+                selected_files = file_names
 
             # Get user input for collection and type
             collection = st.text_input("Enter Collection Name")
