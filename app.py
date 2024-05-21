@@ -99,11 +99,13 @@ def chat_with_model(query):
     }
     try:
         response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
-        
-        # Check if the response status code is 200
         if response.status_code == 200:
             response_json = response.json()
-            
+            try:
+                response_json = response.json()
+            except ValueError:
+                st.error("Error: Response content is not valid JSON")
+                return "Error: Response content is not valid JSON"
 
             # Log the response for debugging
             st.write(f"API response: {response_json}")
@@ -126,12 +128,9 @@ def chat_with_model(query):
 
             return response_text
         else:
-            st.error(f"Error: Received status code {response.status_code}\nResponse: {response.text}")
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
     except requests.exceptions.RequestException as e:
-        st.error(f"Error: {e}")
         return f"Error: {e}"
-
 def main():
     with st.sidebar:
         choice = option_menu("MASTER VECTORS", ["Train MV","Chat"], 
