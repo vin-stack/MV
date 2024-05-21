@@ -73,8 +73,8 @@ def chat_with_model(query):
         return f"Error: {e}"
 def main():
     with st.sidebar:
-    		choice = option_menu("SQLSPACE", ["Train MV","Chat MV"], 
-        	icons=['data','chat'], menu_icon="server", default_index=1,orientation="horizontal")
+    		choice = option_menu("MASTER VECTORS", ["Train MV","Chat"], 
+        	icons=['upload','chat'], menu_icon="server", default_index=1,orientation="Vertical")
     if choice == "Zip Extractor":
         zip_extractor()
     elif choice == "Chat":
