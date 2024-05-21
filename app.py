@@ -120,16 +120,18 @@ def example():
     query = st.text_input("Enter your query:")
 
     if query:
-        chat_history.append({"role": "user", "content": query})
         response = chat_with_model(query)
+        chat_history.append({"role": "user", "content": query})
         chat_history.append({"role": "assistant", "content": response})
         st.session_state['chat_history'] = chat_history
 
     for message in chat_history:
-        if message["role"] == "user":
-            st.write(f"**User:** {message['content']}")
-        else:
+        if message["role"] == "assistant":
+            
             st.write(f"**Assistant:** {message['content']}")
+        elif message["role"] == "user":
+            
+            st.write(f"**User:** {message['content']}")
 
 if __name__ == '__main__':
     main()
