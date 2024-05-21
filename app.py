@@ -111,7 +111,7 @@ def main():
                     st.error("Please enter both collection name and type.")
                     
             if st.button("CHAT"):
-                query = input("Enter your query: ")
+                query = st.text_input("Enter your query: ")
                 api_url = "https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/chat/" 
 
                 # Define the request payload
