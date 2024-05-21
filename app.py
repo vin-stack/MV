@@ -8,6 +8,7 @@ from collections import Counter
 from PyPDF2 import PdfReader
 import docx
 from streamlit_option_menu import  option_menu
+from streamlit_extras.customize_running import center_running
 def extract_all_files(zip_ref, temp_dir):
     files = []
     for root, _, filenames in os.walk(temp_dir):
@@ -109,6 +110,8 @@ def zip_extractor():
             doc_type = st.text_input("Enter Type")
             
             if st.button("Train"):
+		center_running()
+	        time.sleep(2)    
                 if collection and doc_type:
                     # Filter selected files
                     to_process = [(file, extract_text(file), collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
