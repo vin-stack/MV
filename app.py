@@ -9,7 +9,7 @@ from collections import Counter
 from PyPDF2 import PdfReader
 import docx
 from streamlit_extras.stateful_chat import chat
-from streamlit_extras.stateful_chat import message as st_message
+from streamlit_extras.stateful_chat import st_message
 
 def extract_all_files(zip_ref, temp_dir):
     files = []
