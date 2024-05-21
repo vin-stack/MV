@@ -141,22 +141,24 @@ def zip_extractor():
 
             # Get user input for collection and type
             collection = st.text_input("Enter Collection Name")
+            st.caption("MV001 is the default one.")
             doc_type = st.text_input("Enter Type")
             
             if st.button("Train"):
                 if collection and doc_type:
-                    # Filter selected files
-                    to_process = [(file, extract_text(file), collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
+                    with st.spinner('🛠️Training in progress...'):
+                        # Filter selected files
+                        to_process = [(file, extract_text(file), collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
 
-                    results = []
-                    for file, text, collection, doc_type in to_process:
-                        status_code, response_text = post_to_api(file, [text], collection, doc_type)
-                        results.append((status_code, response_text))
-                    
-                    # Display results
-                    for status_code, response_text in results:
-                        stw=f"Status: {status_code}, Response: {response_text}"
-                        st.success(stw, icon="✅")
+                        results = []
+                        for file, text, collection, doc_type in to_process:
+                            status_code, response_text = post_to_api(file, [text], collection, doc_type)
+                            results.append((status_code, response_text))
+                        
+                        # Display results
+                        for status_code, response_text in results:
+                            stw=f"Status: {status_code}, Response: {response_text}"
+                            st.success(stw, icon="✅")
                 else:
                     st.error("Please enter both collection name and type.")
             
@@ -168,11 +170,12 @@ def example():
     query = st.text_input("Enter your query:")
 
     if query:
-        response = chat_with_model(query)
-        chat_history.append({"role": "assistant", "content": response})
-        chat_history.append({"role": "user", "content": query})
-        
-        st.session_state['chat_history'] = chat_history
+        with st.spinner('💭Hanna is thinking...'):
+            response = chat_with_model(query)
+            chat_history.append({"role": "assistant", "content": response})
+            chat_history.append({"role": "user", "content": query})
+             
+            st.session_state['chat_history'] = chat_history
 
     for message in reversed(chat_history):
         if message["role"] == "assistant":
