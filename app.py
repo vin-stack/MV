@@ -76,12 +76,7 @@ def main():
         text_data = extract_zip(uploaded_file)
 
         if text_data:
-            st.write(f"Number of files extracted: {len(text_data)}")
             
-            file_types = Counter([os.path.splitext(file)[1] for file in text_data])
-            st.write("File types with counts:")
-            for file_type, count in file_types.items():
-                st.write(f"{file_type}: {count}")
             st.write("Text Data:")
             file_names = []
             for file, text in text_data:
