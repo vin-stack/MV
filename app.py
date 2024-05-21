@@ -24,7 +24,7 @@ page_bg_img = f"""
 
 
 [data-testid="stSidebar"] > div:first-child {{
-background-image: url("https://i.ibb.co/tLPgd2c/dfesig.png");
+background-image: url("https://i.ibb.co/LzVCHgC/Untitled-desig.png");
 background-position: left; 
 background-repeat: no-repeat;
 background-attachment: local;
@@ -93,15 +93,15 @@ def chat_with_model(query):
         "collection": "MV001",
         "query": query,
         "entity": "CMV",
-        "user_id": "chay@gmail.com",
+        "user_id": "chay@gmial.com",
         "user": "chay",
         "language": "ENGLISH"
     }
     try:
         response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
         if response.status_code == 200:
-            response_json = response.json()
-            return response_json
+            response_text = response.text
+            return response_text
         else:
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
     except requests.exceptions.RequestException as e:
@@ -109,7 +109,7 @@ def chat_with_model(query):
 def main():
     with st.sidebar:
         choice = option_menu("MASTER VECTORS", ["Train MV","Chat"], 
-        icons=['upload','chat'],default_index=0,orientation="Vertical")
+        icons=['upload','chat'], menu_icon="server", default_index=1,orientation="Vertical")
     if choice == "Train MV":
         zip_extractor()
     elif choice == "Chat":
