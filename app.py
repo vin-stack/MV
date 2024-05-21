@@ -45,7 +45,7 @@ def extract_zip(zip_file):
             for file_type, count in file_types.items():
                 st.write(f"{file_type}: {count}")
 
-            # Process files without multiprocessing
+            # Process files
             for file in files:
                 file, chunks = process_file(file)
                 chunks_data.append((file, chunks))
@@ -76,6 +76,12 @@ def main():
 
         if chunks_data:
             st.write("Chunks Data:")
+            for file, chunks in chunks_data:
+                with st.expander(f"Chunks from {os.path.basename(file)}"):
+                    for i, chunk in enumerate(chunks):
+                        st.write(f"Chunk {i+1}:")
+                        st.write(chunk[:300])
+
             # Create a table to display file info and allow user to select files
             table_data = []
             for file, chunks in chunks_data:
