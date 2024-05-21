@@ -129,7 +129,7 @@ def main():
                     # Send the POST request
                     response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
 
-                    # Check if the request was successful
+                    # Check if the request was successfu
                     if response.status_code == 200:
                         # If the response is a streaming response, handle it accordingly
                         for line in response.iter_lines():
