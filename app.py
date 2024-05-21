@@ -102,11 +102,8 @@ def chat_with_model(query):
         
         # Check if the response status code is 200
         if response.status_code == 200:
-            try:
-                response_json = response.json()
-            except ValueError:
-                st.error("Error: Response content is not valid JSON")
-                return "Error: Response content is not valid JSON"
+            response_json = response.json()
+            
 
             # Log the response for debugging
             st.write(f"API response: {response_json}")
