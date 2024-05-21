@@ -90,7 +90,7 @@ def post_to_api(file, chunks, collection, doc_type):
 def chat_with_model(query):
     api_url = "https://new-weaviate-chay-ce16dcbef0d9.herokuapp.com/chat/"
     payload = {
-        "collection": "MV001",
+        "collection": "001",
         "query": query,
         "entity": "CMV",
         "user_id": "chay@gmial.com",
