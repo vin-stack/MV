@@ -157,7 +157,7 @@ def zip_extractor():
                         
                         # Display results
                         for status_code, response_text in results:
-                            stw=f"Status: {file,status_code}, Response: {response_text}"
+                            stw=f"Status: {status_code}, Response: {response_text}"
                             st.success(stw, icon="✅")
                 else:
                     st.error("Please enter both collection name and type.")
