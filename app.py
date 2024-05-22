@@ -165,27 +165,25 @@ def zip_extractor():
            
 
 def example():
-    if 'chat_history' not in st.session_state:
-        st.session_state.chat_history = []
-    if 'query' not in st.session_state:
-        st.session_state.query = ""
+    chat_history = st.session_state.get('chat_history', [])
 
-    query = st.text_input("Enter your query:", key="query")
+    query = st.text_input("Enter your query:")
 
-    if st.session_state.query:
+    if st.button("ASK HANNA->"):
         with st.spinner('🤔Hanna is thinking...'):
-            response = chat_with_model(st.session_state.query)
-            st.session_state.chat_history.append({"role": "assistant", "content": response})
-            st.session_state.chat_history.append({"role": "user", "content": st.session_state.query})
+            response = chat_with_model(query)
+            chat_history.append({"role": "assistant", "content": response})
+            chat_history.append({"role": "user", "content": query})
+             
+            st.session_state['chat_history'] = chat_history
 
-            # Clear the text input field
-            st.session_state.query = ""
-
-    for message in reversed(st.session_state.chat_history):
+    for message in reversed(chat_history):
         if message["role"] == "assistant":
+            
             st.write(f"**🤖Hanna:** {message['content']}")
             st.markdown("----------------")
         elif message["role"] == "user":
+            
             st.write(f"**👧🏻User:** {message['content']}")
 
 if __name__ == '__main__':
