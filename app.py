@@ -24,7 +24,7 @@ page_bg_img = f"""
 
 
 [data-testid="stSidebar"] > div:first-child {{
-background-image: url("https://i.ibb.co/tLPgd2c/dfesig.png");
+background-image: url("https://i.ibb.co/LzVCHgC/Untitled-desig.png");
 background-position: left; 
 background-repeat: no-repeat;
 background-attachment: local;
@@ -169,8 +169,8 @@ def example():
 
     query = st.text_input("Enter your query:")
 
-    if query:
-        with st.spinner('Sending query...'):
+    if st.button("ASK HANNA->"):
+        with st.spinner('🤔Hanna is thinking...'):
             response = chat_with_model(query)
             chat_history.append({"role": "assistant", "content": response})
             chat_history.append({"role": "user", "content": query})
@@ -179,9 +179,11 @@ def example():
 
     for message in reversed(chat_history):
         if message["role"] == "assistant":
-            st.write(f"**🤖Assistant:** {message['content']}")
+            
+            st.write(f"**🤖Hanna:** {message['content']}")
             st.markdown("----------------")
         elif message["role"] == "user":
+            
             st.write(f"**👧🏻User:** {message['content']}")
 
 if __name__ == '__main__':
