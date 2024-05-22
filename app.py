@@ -77,7 +77,7 @@ def extract_text(file):
     return text
 
 def post_to_api(file, chunks, collection, doc_type):
-    url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/add-master-object/file/'
+    url = 'https://new-weaviate-chay-077e31cdeffc.herokuapp.com/add-master-object/file/'
     data = {
         'chunks': chunks,
         'filename': os.path.basename(file),
@@ -88,7 +88,7 @@ def post_to_api(file, chunks, collection, doc_type):
     return response.status_code, response.text
 
 def chat_with_model(query):
-    api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"
+    api_url = "https://new-weaviate-chay-077e31cdeffc.herokuapp.com/chat/"
     payload = {
         "collection": "MV001",
         "query": query,
