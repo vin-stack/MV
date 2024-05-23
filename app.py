@@ -12,13 +12,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from streamlit_option_menu import option_menu
 
-# Ensure logs are initialized in session state
-if 'logs' not in st.session_state:
-    st.session_state.logs = []
-
-# Ensure chat history is initialized in session state
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = []
+logs = []
+chat_history = []
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
@@ -119,7 +114,7 @@ def process_file(file, collection, doc_type, chunk_size=300):
     
     # Log the details
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    st.session_state.logs.append({
+    logs.append({
         "filename": os.path.basename(file),
         "status_code": status_code,
         "message": response_text,
@@ -149,6 +144,9 @@ def chat_with_model(query):
         return f"Error: {e}"
 
 def main():
+    global logs
+    global chat_history
+
     with st.sidebar:
         choice = option_menu("MASTER VECTORS", ["Train MV", "Chat", "View Logs"], 
         icons=['upload','chat', 'list'], menu_icon="server", default_index=0, orientation="Vertical")
@@ -208,15 +206,17 @@ def zip_extractor():
                     st.error("Please enter both collection name and type.")
 
 def example():
+    global chat_history
+
     query = st.text_input("Enter your query:")
 
     if st.button("ASK HANNA->"):
         with st.spinner('🤔 Hanna is thinking...'):
             response = chat_with_model(query)
-            st.session_state.chat_history.append({"role": "assistant", "content": response})
-            st.session_state.chat_history.append({"role": "user", "content": query})
+            chat_history.append({"role": "assistant", "content": response})
+            chat_history.append({"role": "user", "content": query})
 
-    for message in reversed(st.session_state.chat_history):
+    for message in reversed(chat_history):
         if message["role"] == "assistant":
             st.write(f"**🤖 Hanna:** {message['content']}")
             st.markdown("----------------")
@@ -224,9 +224,11 @@ def example():
             st.write(f"**👧🏻 User:** {message['content']}")
 
 def view_logs():
+    global logs
+
     st.title("View Logs")
-    if st.session_state.logs:
-        for log in st.session_state.logs:
+    if logs:
+        for log in logs:
             st.write(f"**Filename:** {log['filename']}")
             st.write(f"**Status Code:** {log['status_code']}")
             st.write(f"**Message:** {log['message']}")
