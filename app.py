@@ -8,33 +8,27 @@ import json
 from collections import Counter
 from PyPDF2 import PdfReader
 import docx
-from streamlit_option_menu import  option_menu
+from streamlit_option_menu import option_menu
 import time
-
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
-
 img = get_img_as_base64("image.jpg")
 
 page_bg_img = f"""
 <style>
-
-
 [data-testid="stSidebar"] > div:first-child {{
 background-image: url("https://i.ibb.co/LzVCHgC/Untitled-desig.png");
 background-position: left; 
 background-repeat: no-repeat;
 background-attachment: local;
 }}
-
 [data-testid="stHeader"] {{
 background: rgba(0,0,0,0);
 }}
-
 [data-testid="stToolbar"] {{
 right: 2rem;
 }}
@@ -42,7 +36,6 @@ right: 2rem;
 """
 
 st.markdown(page_bg_img, unsafe_allow_html=True)
-# Fxn Make Execution
 
 def extract_all_files(zip_ref, temp_dir):
     files = []
@@ -108,22 +101,14 @@ def chat_with_model(query):
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
 
-def split_into_batches(items, batch_size):
-    for i in range(0, len(items), batch_size):
-        yield items[i:i + batch_size]
-	    
 def main():
     with st.sidebar:
-        choice = option_menu("MASTER VECTORS", ["Train MV","Chat"], 
-        icons=['upload','chat'], menu_icon="server", default_index=1,orientation="Vertical")
+        choice = option_menu("MASTER VECTORS", ["Train MV", "Chat"],
+                             icons=['upload', 'chat'], menu_icon="server", default_index=1, orientation="Vertical")
     if choice == "Train MV":
         zip_extractor()
     elif choice == "Chat":
         example()
-   
-    	
-	
-
 
 def zip_extractor():
     st.title("Zip File Extractor and Text Chunker")
@@ -131,7 +116,14 @@ def zip_extractor():
     uploaded_file = st.file_uploader("Upload a zip file", type="zip")
 
     if uploaded_file is not None:
-        extracted_files = extract_zip(uploaded_file)
+        if 'processed_files' not in st.session_state:
+            st.session_state.processed_files = 0
+        if 'extracted_files' not in st.session_state:
+            extracted_files = extract_zip(uploaded_file)
+            st.session_state.extracted_files = extracted_files
+        else:
+            extracted_files = st.session_state.extracted_files
+
         if extracted_files:
             st.write(f"Number of files extracted: {len(extracted_files)}")
             file_types = Counter([os.path.splitext(file)[1] for file in extracted_files])
@@ -141,7 +133,7 @@ def zip_extractor():
 
             # Use a multiselect widget for file selection
             file_names = [os.path.basename(file) for file in extracted_files]
-            selected_files = st.multiselect("Select files to train", ["All"] + file_names)
+            selected_files = st.multiselect("Select files to train", ["All"] + file_names, default="All")
             if "All" in selected_files:
                 selected_files = file_names
 
@@ -150,30 +142,38 @@ def zip_extractor():
             st.caption("MV001 is the default one.")
             doc_type = st.text_input("Enter Type")
 
-            if st.button("Train"):
+            def process_files():
                 if collection and doc_type:
                     with st.spinner('🛠️Training in progress...'):
-                        # Filter selected files
-                        to_process = [(file, extract_text(file), collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
-
-                        # Split files into batches of 10
-                        batches = list(split_into_batches(to_process, 10))
+                        start_index = st.session_state.processed_files
+                        end_index = min(start_index + 20, len(selected_files))
+                        to_process = [(extracted_files[i], extract_text(extracted_files[i]), collection, doc_type) for i in range(start_index, end_index)]
 
                         results = []
-                        for batch in batches:
-                            for file, text, collection, doc_type in batch:
-                                status_code, response_text = post_to_api(file, [text], collection, doc_type)
-                                results.append((status_code, response_text))
-                            time.sleep(20)  # Add a 5-second interval between batches
-                        
+                        for file, text, collection, doc_type in to_process:
+                            status_code, response_text = post_to_api(file, [text], collection, doc_type)
+                            results.append((status_code, response_text))
+
+                        # Update processed files count
+                        st.session_state.processed_files = end_index
+
                         # Display results
                         for status_code, response_text in results:
                             st.write(f"Status: {status_code}, Response: {response_text}")
                             st.success(f"Status: {status_code}, Response: {response_text}", icon="✅")
+
+                        if end_index < len(selected_files):
+                            st.info("Waiting to process the next batch...")
+                        else:
+                            st.success("All files processed!", icon="✅")
                 else:
                     st.error("Please enter both collection name and type.")
 
-           
+            if st.button("Train"):
+                process_files()
+
+            if st.button("Resume Training"):
+                process_files()
 
 def example():
     chat_history = st.session_state.get('chat_history', [])
@@ -185,16 +185,14 @@ def example():
             response = chat_with_model(query)
             chat_history.append({"role": "assistant", "content": response})
             chat_history.append({"role": "user", "content": query})
-             
+
             st.session_state['chat_history'] = chat_history
 
     for message in reversed(chat_history):
         if message["role"] == "assistant":
-            
             st.write(f"**🤖Hanna:** {message['content']}")
             st.markdown("----------------")
         elif message["role"] == "user":
-            
             st.write(f"**👧🏻User:** {message['content']}")
 
 if __name__ == '__main__':
