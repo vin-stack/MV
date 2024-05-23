@@ -9,12 +9,7 @@ from collections import Counter
 from PyPDF2 import PdfReader
 import docx
 from streamlit_option_menu import option_menu
-import nltk
-from nltk.tokenize import sent_tokenize, word_tokenize
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
-# Set the NLTK data path to the local directory
-nltk.data.path.append(os.path.join(os.path.dirname(__file__), 'nltk_data'))
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
@@ -78,26 +73,11 @@ def extract_text(file):
     return text
 
 def chunk_text(text, chunk_size=300):
-    sentences = sent_tokenize(text)
+    words = text.split()
     chunks = []
-    current_chunk = []
-    current_chunk_word_count = 0
-    
-    for sentence in sentences:
-        words = word_tokenize(sentence)
-        sentence_word_count = len(words)
-        
-        if current_chunk_word_count + sentence_word_count <= chunk_size:
-            current_chunk.append(sentence)
-            current_chunk_word_count += sentence_word_count
-        else:
-            chunks.append(' '.join(current_chunk))
-            current_chunk = [sentence]
-            current_chunk_word_count = sentence_word_count
-    
-    if current_chunk:
-        chunks.append(' '.join(current_chunk))
-    
+    for i in range(0, len(words), chunk_size):
+        chunk = words[i:i + chunk_size]
+        chunks.append(' '.join(chunk))
     return chunks
 
 def post_to_api(file, chunks, collection, doc_type):
