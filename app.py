@@ -143,22 +143,26 @@ def zip_extractor():
             collection = st.text_input("Enter Collection Name")
             st.caption("MV001 is the default one.")
             doc_type = st.text_input("Enter Type")
-            
+
             if st.button("Train"):
                 if collection and doc_type:
                     with st.spinner('🛠️Training in progress...'):
                         # Filter selected files
                         to_process = [(file, extract_text(file), collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
 
+                        # Split files into batches of 10
+                        batches = list(split_into_batches(to_process, 10))
+
                         results = []
-                        for file, text, collection, doc_type in to_process:
-                            status_code, response_text = post_to_api(file, [text], collection, doc_type)
-                            results.append((status_code, response_text))
-                        
+                        for batch in batches:
+                            for file, text, collection, doc_type in batch:
+                                status_code, response_text = post_to_api(file, [text], collection, doc_type)
+                                results.append((status_code, response_text))
+                            
                         # Display results
                         for status_code, response_text in results:
-                            stw=f"Status: {status_code}, Response: {response_text}"
-                            st.success(stw, icon="✅")
+                            st.write(f"Status: {status_code}, Response: {response_text}")
+                            st.success(f"Status: {status_code}, Response: {response_text}", icon="✅")
                 else:
                     st.error("Please enter both collection name and type.")
             
