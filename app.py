@@ -163,7 +163,7 @@ def zip_extractor():
                             for file, text, collection, doc_type in batch:
                                 status_code, response_text = post_to_api(file, [text], collection, doc_type)
                                 results.append((status_code, response_text))
-                            
+                            time.sleep(5)
                         # Display results
                         for status_code, response_text in results:
                             st.write(f"Status: {status_code}, Response: {response_text}")
