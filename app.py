@@ -74,6 +74,9 @@ def extract_text(file):
 
 def chunk_text(text, chunk_size=300):
     words = text.split()
+    if len(words) <= chunk_size:
+        return [text]  # If the text has less than or equal to 300 words, return it as a single chunk
+
     chunks = []
     current_chunk = []
     current_word_count = 0
