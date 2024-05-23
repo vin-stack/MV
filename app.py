@@ -12,8 +12,9 @@ from streamlit_option_menu import option_menu
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
-# Define a global list to store log information
-logs = []
+# Ensure logs are initialized in session state
+if 'logs' not in st.session_state:
+    st.session_state.logs = []
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
@@ -114,7 +115,7 @@ def process_file(file, collection, doc_type, chunk_size=300):
     
     # Log the details
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    logs.append({
+    st.session_state.logs.append({
         "filename": os.path.basename(file),
         "status_code": status_code,
         "message": response_text,
@@ -146,7 +147,7 @@ def chat_with_model(query):
 def main():
     with st.sidebar:
         choice = option_menu("MASTER VECTORS", ["Train MV", "Chat", "View Logs"], 
-        icons=['upload','chat', 'list'], menu_icon="server", default_index=1, orientation="Vertical")
+        icons=['upload','chat', 'list'], menu_icon="server", default_index=0, orientation="Vertical")
     if choice == "Train MV":
         zip_extractor()
     elif choice == "Chat":
@@ -181,7 +182,7 @@ def zip_extractor():
             
             if st.button("Train"):
                 if collection and doc_type:
-                    with st.spinner('🛠️Training in progress...'):
+                    with st.spinner('🛠️ Training in progress...'):
                         # Filter selected files
                         to_process = [(file, collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
 
@@ -208,7 +209,7 @@ def example():
     query = st.text_input("Enter your query:")
 
     if st.button("ASK HANNA->"):
-        with st.spinner('🤔Hanna is thinking...'):
+        with st.spinner('🤔 Hanna is thinking...'):
             response = chat_with_model(query)
             chat_history.append({"role": "assistant", "content": response})
             chat_history.append({"role": "user", "content": query})
@@ -217,15 +218,15 @@ def example():
 
     for message in reversed(chat_history):
         if message["role"] == "assistant":
-            st.write(f"**🤖Hanna:** {message['content']}")
+            st.write(f"**🤖 Hanna:** {message['content']}")
             st.markdown("----------------")
         elif message["role"] == "user":
-            st.write(f"**👧🏻User:** {message['content']}")
+            st.write(f"**👧🏻 User:** {message['content']}")
 
 def view_logs():
     st.title("View Logs")
-    if logs:
-        for log in logs:
+    if st.session_state.logs:
+        for log in st.session_state.logs:
             st.write(f"**Filename:** {log['filename']}")
             st.write(f"**Status Code:** {log['status_code']}")
             st.write(f"**Message:** {log['message']}")
