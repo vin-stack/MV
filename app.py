@@ -142,7 +142,7 @@ def zip_extractor():
             st.caption("MV001 is the default one.")
             doc_type = st.text_input("Enter Type")
 
-            def process_files():
+            def process_files(collection, doc_type):
                 if collection and doc_type:
                     with st.spinner('🛠️Training in progress...'):
                         start_index = st.session_state.processed_files
@@ -170,10 +170,10 @@ def zip_extractor():
                     st.error("Please enter both collection name and type.")
 
             if st.button("Train"):
-                process_files()
+                process_files(collection, doc_type)
 
             if st.button("Resume Training"):
-                process_files()
+                process_files(collection, doc_type)
 
 def example():
     chat_history = st.session_state.get('chat_history', [])
