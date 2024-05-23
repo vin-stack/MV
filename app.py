@@ -75,29 +75,35 @@ def extract_text(file):
 def chunk_text(text, chunk_size=300):
     words = text.split()
     chunks = []
-    for i in range(0, len(words), chunk_size):
-        chunk = words[i:i + chunk_size]
-        chunks.append(' '.join(chunk))
+    current_chunk = []
+    current_word_count = 0
+    for word in words:
+        current_chunk.append(word)
+        current_word_count += 1
+        if current_word_count >= chunk_size:
+            chunks.append(' '.join(current_chunk))
+            current_chunk = []
+            current_word_count = 0
+    if current_chunk:
+        chunks.append(' '.join(current_chunk))
     return chunks
 
-def post_to_api(file, chunks, collection, doc_type):
+def post_chunks_to_api(file, chunks, collection, doc_type):
     url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/add-master-object/file/'
     results = []
-    for chunk in chunks:
-        data = {
-            'chunks': [chunk],
-            'filename': os.path.basename(file),
-            'collection': collection,
-            'type': doc_type
-        }
-        response = requests.post(url, json=data)
-        results.append((response.status_code, response.text))
-    return results
+    data = {
+        'chunks': chunks,
+        'filename': os.path.basename(file),
+        'collection': collection,
+        'type': doc_type
+    }
+    response = requests.post(url, json=data)
+    return response.status_code, response.text
 
-def process_file(file, collection, doc_type):
+def process_file(file, collection, doc_type, chunk_size=300):
     text = extract_text(file)
-    chunks = chunk_text(text)
-    return post_to_api(file, chunks, collection, doc_type)
+    chunks = chunk_text(text, chunk_size)
+    return post_chunks_to_api(file, chunks, collection, doc_type)
 
 def chat_with_model(query):
     api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"
@@ -157,20 +163,21 @@ def zip_extractor():
                 if collection and doc_type:
                     with st.spinner('🛠️Training in progress...'):
                         # Filter selected files
-                        to_process = [file for file in extracted_files if os.path.basename(file) in selected_files]
+                        to_process = [(file, collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
 
                         results = []
                         with ThreadPoolExecutor() as executor:
-                            futures = {executor.submit(process_file, file, collection, doc_type): file for file in to_process}
+                            futures = [executor.submit(process_file, file, collection, doc_type) for file, collection, doc_type in to_process]
                             for future in as_completed(futures):
                                 try:
                                     result = future.result()
-                                    results.extend(result)
+                                    results.append(result)
                                 except Exception as e:
-                                    st.error(f"Error processing file {futures[future]}: {e}")
+                                    st.error(f"Error processing file: {e}")
                         
                         # Display results
-                        for status_code, response_text in results:
+                        for result in results:
+                            status_code, response_text = result
                             st.write(f"Status: {status_code}, Response: {response_text}")
                 else:
                     st.error("Please enter both collection name and type.")
@@ -197,3 +204,4 @@ def example():
 
 if __name__ == '__main__':
     main()
+
