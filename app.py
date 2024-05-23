@@ -131,9 +131,9 @@ def zip_extractor():
             for file_type, count in file_types.items():
                 st.write(f"{file_type}: {count}")
 
-            # Sort files by size
+            # Sort files by size (low to high)
             file_sizes = {file: os.path.getsize(file) for file in extracted_files}
-            sorted_files = sorted(file_sizes.keys(), key=lambda x: file_sizes[x], reverse=True)
+            sorted_files = sorted(file_sizes.keys(), key=lambda x: file_sizes[x])
 
             # Use a multiselect widget for file selection
             file_names = [os.path.basename(file) for file in sorted_files]
