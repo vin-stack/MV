@@ -165,7 +165,7 @@ def zip_extractor():
                         if end_index < len(selected_files):
                             st.info("Waiting to process the next batch...")
                             # Add a delay of 10 seconds
-                            time.sleep(30)
+                            time.sleep(40)
                             process_files(collection, doc_type)
                         else:
                             st.success("All files processed!", icon="✅")
