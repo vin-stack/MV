@@ -9,13 +9,16 @@ from collections import Counter
 from PyPDF2 import PdfReader
 import docx
 from streamlit_option_menu import option_menu
+import nltk
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
+nltk.download('punkt')
+from nltk.tokenize import sent_tokenize, word_tokenize
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
         data = f.read()
     return base64.b64encode(data).decode()
-
 
 img = get_img_as_base64("image.jpg")
 
@@ -74,8 +77,26 @@ def extract_text(file):
     return text
 
 def chunk_text(text, chunk_size=300):
-    words = text.split()
-    chunks = [' '.join(words[i:i + chunk_size]) for i in range(0, len(words), chunk_size)]
+    sentences = sent_tokenize(text)
+    chunks = []
+    current_chunk = []
+    current_chunk_word_count = 0
+    
+    for sentence in sentences:
+        words = word_tokenize(sentence)
+        sentence_word_count = len(words)
+        
+        if current_chunk_word_count + sentence_word_count <= chunk_size:
+            current_chunk.append(sentence)
+            current_chunk_word_count += sentence_word_count
+        else:
+            chunks.append(' '.join(current_chunk))
+            current_chunk = [sentence]
+            current_chunk_word_count = sentence_word_count
+    
+    if current_chunk:
+        chunks.append(' '.join(current_chunk))
+    
     return chunks
 
 def post_to_api(file, chunks, collection, doc_type):
@@ -91,6 +112,11 @@ def post_to_api(file, chunks, collection, doc_type):
         response = requests.post(url, json=data)
         results.append((response.status_code, response.text))
     return results
+
+def process_file(file, collection, doc_type):
+    text = extract_text(file)
+    chunks = chunk_text(text)
+    return post_to_api(file, chunks, collection, doc_type)
 
 def chat_with_model(query):
     api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"
@@ -150,13 +176,17 @@ def zip_extractor():
                 if collection and doc_type:
                     with st.spinner('🛠️Training in progress...'):
                         # Filter selected files
-                        to_process = [(file, extract_text(file), collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
+                        to_process = [file for file in extracted_files if os.path.basename(file) in selected_files]
 
                         results = []
-                        for file, text, collection, doc_type in to_process:
-                            chunks = chunk_text(text)
-                            file_results = post_to_api(file, chunks, collection, doc_type)
-                            results.extend(file_results)
+                        with ThreadPoolExecutor() as executor:
+                            futures = {executor.submit(process_file, file, collection, doc_type): file for file in to_process}
+                            for future in as_completed(futures):
+                                try:
+                                    result = future.result()
+                                    results.extend(result)
+                                except Exception as e:
+                                    st.error(f"Error processing file {futures[future]}: {e}")
                         
                         # Display results
                         for status_code, response_text in results:
