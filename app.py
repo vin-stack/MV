@@ -8,13 +8,16 @@ import json
 from collections import Counter
 from PyPDF2 import PdfReader
 import docx
-from streamlit_option_menu import option_menu
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
 # Ensure logs are initialized in session state
 if 'logs' not in st.session_state:
     st.session_state.logs = []
+
+# Ensure chat history is initialized in session state
+if 'chat_history' not in st.session_state:
+    st.session_state.chat_history = []
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
@@ -60,6 +63,7 @@ def extract_zip(zip_file):
             return files
     except zipfile.LargeZipFile:
         st.error('Error: File size is too large to open')
+        return []
 
 def extract_text(file):
     text = ""
@@ -203,9 +207,6 @@ def zip_extractor():
                     st.error("Please enter both collection name and type.")
 
 def example():
-    if 'chat_history' not in st.session_state:
-        st.session_state.chat_history = []
-
     query = st.text_input("Enter your query:")
 
     if st.button("ASK HANNA->"):
