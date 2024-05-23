@@ -8,7 +8,7 @@ import json
 from collections import Counter
 from PyPDF2 import PdfReader
 import docx
-from streamlit_option_menu import  option_menu
+from streamlit_option_menu import option_menu
 
 
 def get_img_as_base64(file):
@@ -21,8 +21,6 @@ img = get_img_as_base64("image.jpg")
 
 page_bg_img = f"""
 <style>
-
-
 [data-testid="stSidebar"] > div:first-child {{
 background-image: url("https://i.ibb.co/LzVCHgC/Untitled-desig.png");
 background-position: left; 
@@ -41,7 +39,6 @@ right: 2rem;
 """
 
 st.markdown(page_bg_img, unsafe_allow_html=True)
-# Fxn Make Execution
 
 def extract_all_files(zip_ref, temp_dir):
     files = []
@@ -76,16 +73,24 @@ def extract_text(file):
             text += page.extract_text() + "\n"
     return text
 
+def chunk_text(text, chunk_size=300):
+    words = text.split()
+    chunks = [' '.join(words[i:i + chunk_size]) for i in range(0, len(words), chunk_size)]
+    return chunks
+
 def post_to_api(file, chunks, collection, doc_type):
     url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/add-master-object/file/'
-    data = {
-        'chunks': chunks,
-        'filename': os.path.basename(file),
-        'collection': collection,
-        'type': doc_type
-    }
-    response = requests.post(url, json=data)
-    return response.status_code, response.text
+    results = []
+    for chunk in chunks:
+        data = {
+            'chunks': [chunk],
+            'filename': os.path.basename(file),
+            'collection': collection,
+            'type': doc_type
+        }
+        response = requests.post(url, json=data)
+        results.append((response.status_code, response.text))
+    return results
 
 def chat_with_model(query):
     api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"
@@ -106,18 +111,15 @@ def chat_with_model(query):
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
+
 def main():
     with st.sidebar:
-        choice = option_menu("MASTER VECTORS", ["Train MV","Chat"], 
-        icons=['upload','chat'], menu_icon="server", default_index=1,orientation="Vertical")
+        choice = option_menu("MASTER VECTORS", ["Train MV", "Chat"], 
+        icons=['upload','chat'], menu_icon="server", default_index=1, orientation="Vertical")
     if choice == "Train MV":
         zip_extractor()
     elif choice == "Chat":
         example()
-   
-    	
-	
-
 
 def zip_extractor():
     st.title("Zip File Extractor and Text Chunker")
@@ -152,17 +154,16 @@ def zip_extractor():
 
                         results = []
                         for file, text, collection, doc_type in to_process:
-                            status_code, response_text = post_to_api(file, [text], collection, doc_type)
-                            results.append((status_code, response_text))
+                            chunks = chunk_text(text)
+                            file_results = post_to_api(file, chunks, collection, doc_type)
+                            results.extend(file_results)
                         
                         # Display results
                         for status_code, response_text in results:
-                            stw=f"Status: {status_code}, Response: {response_text}"
+                            stw = f"Status: {status_code}, Response: {response_text}"
                             st.success(stw, icon="✅")
                 else:
                     st.error("Please enter both collection name and type.")
-            
-           
 
 def example():
     chat_history = st.session_state.get('chat_history', [])
