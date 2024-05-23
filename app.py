@@ -12,7 +12,7 @@ from streamlit_option_menu import option_menu
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
-# Initialize logs in session state
+# Ensure logs are initialized in session state
 if 'logs' not in st.session_state:
     st.session_state.logs = []
 
@@ -108,10 +108,6 @@ def post_chunks_to_api(file, chunks, collection, doc_type):
     return response.status_code, response.text
 
 def process_file(file, collection, doc_type, chunk_size=300):
-    # Ensure logs are initialized in session state within the function
-    if 'logs' not in st.session_state:
-        st.session_state.logs = []
-
     text = extract_text(file)
     chunks = chunk_text(text, chunk_size)
     status_code, response_text = post_chunks_to_api(file, chunks, collection, doc_type)
