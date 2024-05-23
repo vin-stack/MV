@@ -146,7 +146,7 @@ def zip_extractor():
                 if collection and doc_type:
                     with st.spinner('🛠️Training in progress...'):
                         start_index = st.session_state.processed_files
-                        end_index = min(start_index + 20, len(selected_files))
+                        end_index = min(start_index + 10, len(selected_files))
                         to_process = [(extracted_files[i], extract_text(extracted_files[i]), collection, doc_type) for i in range(start_index, end_index)]
 
                         results = []
