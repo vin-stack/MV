@@ -9,15 +9,12 @@ from collections import Counter
 from PyPDF2 import PdfReader
 import docx
 from streamlit_option_menu import option_menu
+import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# Check and download NLTK data
-import nltk
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
+# Set the NLTK data path to the local directory
+nltk.data.path.append(os.path.join(os.path.dirname(__file__), 'nltk_data'))
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
