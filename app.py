@@ -10,6 +10,10 @@ from PyPDF2 import PdfReader
 import docx
 from streamlit_option_menu import option_menu
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
+
+# Define a global list to store log information
+logs = []
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
@@ -106,7 +110,18 @@ def post_chunks_to_api(file, chunks, collection, doc_type):
 def process_file(file, collection, doc_type, chunk_size=300):
     text = extract_text(file)
     chunks = chunk_text(text, chunk_size)
-    return post_chunks_to_api(file, chunks, collection, doc_type)
+    status_code, response_text = post_chunks_to_api(file, chunks, collection, doc_type)
+    
+    # Log the details
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    logs.append({
+        "filename": os.path.basename(file),
+        "status_code": status_code,
+        "message": response_text,
+        "timestamp": timestamp
+    })
+    
+    return status_code, response_text
 
 def chat_with_model(query):
     api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"
@@ -130,12 +145,14 @@ def chat_with_model(query):
 
 def main():
     with st.sidebar:
-        choice = option_menu("MASTER VECTORS", ["Train MV", "Chat"], 
-        icons=['upload','chat'], menu_icon="server", default_index=1, orientation="Vertical")
+        choice = option_menu("MASTER VECTORS", ["Train MV", "Chat", "View Logs"], 
+        icons=['upload','chat', 'list'], menu_icon="server", default_index=1, orientation="Vertical")
     if choice == "Train MV":
         zip_extractor()
     elif choice == "Chat":
         example()
+    elif choice == "View Logs":
+        view_logs()
 
 def zip_extractor():
     st.title("Zip File Extractor and Text Chunker")
@@ -205,6 +222,17 @@ def example():
         elif message["role"] == "user":
             st.write(f"**👧🏻User:** {message['content']}")
 
+def view_logs():
+    st.title("View Logs")
+    if logs:
+        for log in logs:
+            st.write(f"**Filename:** {log['filename']}")
+            st.write(f"**Status Code:** {log['status_code']}")
+            st.write(f"**Message:** {log['message']}")
+            st.write(f"**Timestamp:** {log['timestamp']}")
+            st.markdown("---")
+    else:
+        st.write("No logs to display.")
+
 if __name__ == '__main__':
     main()
-
