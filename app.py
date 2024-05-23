@@ -131,8 +131,12 @@ def zip_extractor():
             for file_type, count in file_types.items():
                 st.write(f"{file_type}: {count}")
 
+            # Sort files by size
+            file_sizes = {file: os.path.getsize(file) for file in extracted_files}
+            sorted_files = sorted(file_sizes.keys(), key=lambda x: file_sizes[x], reverse=True)
+
             # Use a multiselect widget for file selection
-            file_names = [os.path.basename(file) for file in extracted_files]
+            file_names = [os.path.basename(file) for file in sorted_files]
             selected_files = st.multiselect("Select files to train", ["All"] + file_names, default="All")
             if "All" in selected_files:
                 selected_files = file_names
@@ -146,8 +150,8 @@ def zip_extractor():
                 if collection and doc_type:
                     with st.spinner('🛠️Training in progress...'):
                         start_index = st.session_state.processed_files
-                        end_index = min(start_index + 10, len(selected_files))
-                        to_process = [(extracted_files[i], extract_text(extracted_files[i]), collection, doc_type) for i in range(start_index, end_index)]
+                        end_index = min(start_index + 20, len(selected_files))
+                        to_process = [(sorted_files[i], extract_text(sorted_files[i]), collection, doc_type) for i in range(start_index, end_index)]
 
                         results = []
                         for file, text, collection, doc_type in to_process:
@@ -165,7 +169,7 @@ def zip_extractor():
                         if end_index < len(selected_files):
                             st.info("Waiting to process the next batch...")
                             # Add a delay of 10 seconds
-                            time.sleep(40)
+                            time.sleep(10)
                             process_files(collection, doc_type)
                         else:
                             st.success("All files processed!", icon="✅")
