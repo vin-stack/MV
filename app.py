@@ -157,7 +157,7 @@ def zip_extractor():
                         to_process = [(file, extract_text(file), collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
 
                         # Split files into batches of 10
-                        batches = list(split_into_batches(to_process, 12))
+                        batches = list(split_into_batches(to_process, 10))
 
                         results = []
                         for batch in batches:
