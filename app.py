@@ -106,6 +106,11 @@ def chat_with_model(query):
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
     except requests.exceptions.RequestException as e:
         return f"Error: {e}"
+
+def split_into_batches(items, batch_size):
+    for i in range(0, len(items), batch_size):
+        yield items[i:i + batch_size]
+	    
 def main():
     with st.sidebar:
         choice = option_menu("MASTER VECTORS", ["Train MV","Chat"], 
