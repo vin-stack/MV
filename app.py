@@ -10,6 +10,7 @@ from PyPDF2 import PdfReader
 import docx
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
+from streamlit_option_menu import option_menu
 
 # Ensure logs are initialized in session state
 if 'logs' not in st.session_state:
