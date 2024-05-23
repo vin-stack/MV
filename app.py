@@ -9,6 +9,7 @@ from collections import Counter
 from PyPDF2 import PdfReader
 import docx
 from streamlit_option_menu import  option_menu
+import time
 
 
 def get_img_as_base64(file):
