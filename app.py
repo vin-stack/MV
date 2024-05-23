@@ -157,14 +157,14 @@ def zip_extractor():
                         to_process = [(file, extract_text(file), collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
 
                         # Split files into batches of 10
-                        batches = list(split_into_batches(to_process, 10))
+                        batches = list(split_into_batches(to_process, 12))
 
                         results = []
                         for batch in batches:
                             for file, text, collection, doc_type in batch:
                                 status_code, response_text = post_to_api(file, [text], collection, doc_type)
                                 results.append((status_code, response_text))
-                            time.sleep(10)  # Add a 5-second interval between batches
+                            time.sleep(20)  # Add a 5-second interval between batches
                         
                         # Display results
                         for status_code, response_text in results:
