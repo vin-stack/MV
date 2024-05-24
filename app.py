@@ -293,7 +293,7 @@ def view_logs():
     st.caption("Select the files that you want to undo the training.")
 
     if logs:
-        logs = reversed(logs)
+        #logs = reversed(logs)
         df_logs = pd.DataFrame(logs)
         df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp'])
         
