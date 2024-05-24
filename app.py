@@ -292,8 +292,6 @@ def example():
 def view_logs():
     logs = get_logs()
     st.title("View Logs")
-     # Set page to wide mode
-    st.set_page_config(layout="wide")
     st.caption("Select the files that you want to undo the training.")
 
     if logs:
