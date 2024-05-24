@@ -146,10 +146,17 @@ def add_log(log):
     
 # Create Bin Functionality
 def move_to_bin(log_id, username, log_entry, timestamp):
-    c.execute('INSERT INTO deleted_logs (username, log_entry, timestamp) VALUES (?, ?, ?)', (username, log_entry, timestamp))
-    conn.commit()
+    conn = sqlite3.connect('logs.db')
+    c = conn.cursor()
+    
+    # Insert the log entry into the bin table
+    c.execute('INSERT INTO bin_logs (log_id, username, log_entry, timestamp) VALUES (?, ?, ?, ?)', (log_id, username, log_entry, timestamp))
+    
+    # Delete the log entry from the logs table
     c.execute('DELETE FROM logs WHERE log_id = ?', (log_id,))
+    
     conn.commit()
+    conn.close()
 
 def restore_from_bin(log_id, username, log_entry, timestamp):
     c.execute('INSERT INTO logs (username, log_entry, timestamp) VALUES (?, ?, ?)', (username, log_entry, timestamp))
