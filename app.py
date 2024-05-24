@@ -14,7 +14,9 @@ from streamlit_option_menu import option_menu
 import pandas as pd
 
 
-logs = []
+# Session state for logs
+if 'logs' not in st.session_state:
+    st.session_state['logs'] = []
 chat_history = []
 
 def get_img_as_base64(file):
@@ -125,15 +127,17 @@ def process_file(file, collection, doc_type, chunk_size=300):
     
     # Log the details
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    logs.append({
+    log_entry = {
         "filename": os.path.basename(file),
         "collection": collection,
         "type": doc_type,
         "status_code": status_code,
         "message": response_text,
         "timestamp": timestamp
-    })
-    add_log(logs)
+    }
+    
+    # Add log to session state
+    st.session_state['logs'].append(log_entry)
     
     return status_code, response_text
 
@@ -240,7 +244,7 @@ def example():
             st.write(f"**👧🏻 User:** {message['content']}")
 
 def view_logs():
-    logs=get_logs()
+    logs = st.session_state['logs']
     st.title("View Logs")
     st.caption("Select the files that you want to undo the training.")
 
