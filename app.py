@@ -14,6 +14,7 @@ from streamlit_option_menu import option_menu
 import pandas as pd
 import sqlite3
 from hashlib import sha256
+import time
 
 logs = []
 chat_history = []
@@ -306,6 +307,7 @@ def view_logs():
                     del logs[idx]
                 else:
                     st.error("Restricted: You can only delete your own logs.")
+                    time.sleep(10)
             st.query_params.logs = logs
             st.rerun()
 
