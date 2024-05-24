@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from streamlit_option_menu import option_menu
 import pandas as pd
-from streamlit_extras.dataframe_explorer import dataframe_explorer
+
 
 logs = []
 chat_history = []
@@ -257,25 +257,20 @@ def delete_log(index):
     st.experimental_set_query_params(logs=logs)
 
 def view_logs():
-    global logs
+    logs = get_logs()
 
     st.title("View Logs")
 
     if logs:
         df_logs = pd.DataFrame(logs)
-        df_logs["Delete"] = st.experimental_widgets.checkbox(df_logs["filename"])
+        df_logs["Delete"] = st.checkbox("Delete", df_logs.index)
         if st.button("Delete File"):
-            to_delete = df_logs[df_logs["Delete"] == True]
-            if not to_delete.empty:
-                logs = [log for log in logs if log not in to_delete.to_dict(orient="records")]
-                st.experimental_set_query_params(logs=logs)
-                st.write("Files deleted successfully.")
-            else:
-                st.write("No files selected for deletion.")
-        st_dataframe(df_logs.drop(columns=["Delete"]))
+            to_delete_index = df_logs[df_logs["Delete"]].index
+            logs = [log for i, log in enumerate(logs) if i not in to_delete_index]
+            st.write("Files deleted successfully.")
+        st.dataframe(df_logs.drop(columns=["Delete"]))
     else:
         st.write("No logs to display.")
-
 
 
 
