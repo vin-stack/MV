@@ -225,15 +225,15 @@ def zip_extractor():
                             }
                             add_log(log_entry)
                         # Add logs for each processed file
-                        for file in to_process:
-                            filename = os.path.basename(file)
-                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            log_entry = {
-                                "filename": filename,
+                    for file in to_process:
+                        filename = os.path.basename(file)
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        log_entry = {
+                            "filename": filename,
                                 
-                                "timestamp": timestamp
-                            }
-                            add_log(log_entry)
+                            "timestamp": timestamp
+                        }
+                        add_log(log_entry)
                 else:
                     st.error("Please enter both collection name and type.")
 
