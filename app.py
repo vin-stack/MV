@@ -312,13 +312,18 @@ def view_logs():
                     else:
                         st.error("Restricted: You can only delete your own logs.")
                         time.sleep(10)
-                # Reverse the logs again to restore the original order
-                logs.reverse()
-                st.query_params.logs = logs
-                st.rerun()
+                # Check if logs still exist after deletion
+                if logs:
+                    # Reverse the logs again to restore the original order
+                    logs.reverse()
+                    st.query_params.logs = logs
+                    st.rerun()
+                else:
+                    # If no logs exist, clear the query parameters
+                    st.query_params.clear()
+                    st.warning("All logs have been deleted.")
             else:
                 st.warning("No logs available to delete.")
-
         def kl(collection, message):
             parsed_data = json.loads(message)
             result = parsed_data["msg"]
