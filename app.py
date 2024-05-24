@@ -271,9 +271,9 @@ def view_logs():
                 st.write(collection)
                 kl(collection, message)  # Call the kl function with collection and message values
                 del logs[idx]  # Delete the log entry at the specified index
-            st.query_params.logs=logs  # Save updated logs
+            st.set.query_params(logs=logs)  # Save updated logs
             # Update the logs displayed in the UI
-            st.experimental_rerun()   
+            st.rerun()   
 
         def kl(collection, message):
             st.write(collection)
