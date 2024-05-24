@@ -255,14 +255,11 @@ def delete_logs(indices):
     logs = get_logs()
     logs = [log for i, log in enumerate(logs) if i not in indices]
     st.experimental_set_query_params(logs=logs)
-
-
-
-
+    # Update the logs displayed in the UI
+    st.experimental_rerun()
 
 def view_logs():
-    logs=get_logs()
-    
+    logs = get_logs()
     st.title("View Logs")
 
     if logs:
