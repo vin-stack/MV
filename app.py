@@ -245,7 +245,7 @@ def example():
             st.write(f"**👧🏻 User:** {message['content']}")
 
 def view_logs():
-    global logs
+    logs = get_logs()
 
     st.title("View Logs")
     if logs:
