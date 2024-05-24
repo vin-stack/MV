@@ -264,14 +264,14 @@ def view_logs():
     if logs:
         # Create DataFrame from logs
         df_logs = pd.DataFrame(logs)
-        df_logs.insert(0,"Remove", " ")
+        df_logs.insert(0,"Delete", " ")
         # Add a column for checkboxes
         
         st.data_editor(
             df_logs,
             column_config={
                 "Remove": st.column_config.CheckboxColumn(
-                    "Remove?",
+                    "Delete?",
                     help="Select log entries to delete",
                     default=False
                 )
