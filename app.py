@@ -286,16 +286,14 @@ def view_logs():
             disabled=["filename", "collection", "type", "status_code", "message", "timestamp"],
             hide_index=True,
         )
-        to_delete_indices = [i for i, checked in enumerate(df_logs["Delete"]) if checked]
-        st.write(to_delete_indices)
-        # Check for deletion button click
-        if st.button("Delete",key="jjnd"):
-            st.write(0)
-            to_delete_indices = [i for i, checked in enumerate(df_logs["Delete"]) if checked]
-            delete_logs(to_delete_indices)
-            st.write("Selected logs deleted successfully.")
-            get_logs()
+        selected_indices = st.dataframe(df_logs.style.format({"timestamp": "{:%Y-%m-%d %H:%M:%S}"}))
 
+        # Check for deletion button click
+        if st.button("Delete Selected Logs"):
+            # Get the indices of checked checkboxes
+            to_delete_indices = [i for i, checked in enumerate(selected_indices.iloc[:, 0]) if checked]
+            delete_logs(to_delete_indices)  # Call delete_logs with the indices
+            st.write("Selected logs deleted successfully.")
     else:
         st.write("No logs to display.")
 
