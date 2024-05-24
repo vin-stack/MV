@@ -255,7 +255,7 @@ def zip_extractor(username):
 
                         for file, (status_code, response_text, chunk_count) in results:
                             filename = os.path.basename(file)
-                            st.success(f"Status: {filename}, {status_code}, Response: {response_text}, obj count: {chunk_count}")
+                            st.success(f"Status: {filename}, {status_code}, Response: {response_text}, objects added: {chunk_count}")
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             log_entry = {
                                 "filename": filename,
