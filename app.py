@@ -286,7 +286,8 @@ def view_logs():
             disabled=["filename", "collection", "type", "status_code", "message", "timestamp"],
             hide_index=True,
         )
-
+        to_delete_indices = [i for i, checked in enumerate(df_logs["Delete"]) if checked]
+        st.write(to_delete_indices)
         # Check for deletion button click
         if st.button("Delete",key="jjnd"):
             st.write(0)
