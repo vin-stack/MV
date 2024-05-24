@@ -293,7 +293,9 @@ def view_logs():
     st.caption("Select the files that you want to undo the training.")
 
     if logs:
+        logs = reversed(logs)
         df_logs = pd.DataFrame(logs)
+        df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp'])
         
         def delete_logs(indices):
             indices_to_drop = [idx for idx in indices if idx < len(logs)]
@@ -324,6 +326,7 @@ def view_logs():
 
         def dataframe_with_selections(df_logs):
             df_with_selections = df_logs.copy()
+            df_with_selections.insert(2, "Username", df_logs['username'])
             df_with_selections.insert(0, "Delete", False)
 
             edited_df = st.data_editor(
