@@ -223,7 +223,7 @@ def zip_extractor():
                                 "message": response_text,
                                
                             }
-                            
+                            add_log(log_entry)
                         # Add logs for each processed file
                         for file, collection, doc_type in to_process:
                             filename = os.path.basename(file)
