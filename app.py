@@ -233,7 +233,8 @@ def zip_extractor():
                                 
                                 "timestamp": timestamp
                             }
-                            add_log(log_entry1+log_entry2)
+                            log_entry=log_entry1+log_entry2
+                            add_log(log_entry)
                 else:
                     st.error("Please enter both collection name and type.")
 
