@@ -198,12 +198,25 @@ def zip_extractor():
                                 except Exception as e:
                                     st.error(f"Error processing file: {e}")
                         
+                        # Add logs for each processed file
+                        for file, _, _ in to_process:
+                            filename = os.path.basename(file)
+                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            log_entry = {
+                                "filename": filename,
+                                "status_code": 201,  # Assuming success for simplicity
+                                "message": "Processed successfully",
+                                "timestamp": timestamp
+                            }
+                            add_log(log_entry)
+                        
                         # Display results
                         for result in results:
                             status_code, response_text = result
                             st.write(f"Status: {status_code}, Response: {response_text}")
                 else:
                     st.error("Please enter both collection name and type.")
+
 
 def example():
     global chat_history
