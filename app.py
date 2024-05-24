@@ -253,8 +253,10 @@ def example():
 def delete_logs(indices):
     global logs
     logs = get_logs()
-    logs = logs.drop(indices).reset_index(drop=True)  # Drop rows with selected indices
-    st.experimental_set_query_params(logs=logs.to_json())  # Save updated logs
+    logs_df = pd.DataFrame(logs)  # Convert logs to DataFrame
+    logs_df = logs_df.drop(indices).reset_index(drop=True)  # Drop rows with selected indices
+    logs = logs_df.to_dict(orient="records")  # Convert DataFrame back to list of dictionaries
+    st.experimental_set_query_params(logs=logs)  # Save updated logs
     # Update the logs displayed in the UI
     st.experimental_rerun()
 
