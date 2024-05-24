@@ -273,8 +273,8 @@ def view_logs():
             st.experimental_rerun()
 
         def kl(collection, message):
-            st.write(f"Collection: {collection}")
-            st.write(f"Message: {message}")
+            st.write(collection)
+            st.write(message)
             
             
 
