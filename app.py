@@ -253,8 +253,8 @@ def example():
 def delete_logs(indices):
     global logs
     logs = get_logs()
-    logs = [log for i, log in enumerate(logs) if i not in indices]
-    st.experimental_set_query_params(logs=logs)
+    logs = logs.drop(indices).reset_index(drop=True)  # Drop rows with selected indices
+    st.experimental_set_query_params(logs=logs.to_json())  # Save updated logs
     # Update the logs displayed in the UI
     st.experimental_rerun()
 
