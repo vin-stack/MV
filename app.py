@@ -69,10 +69,9 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 def extract_all_files(zip_ref, temp_dir):
     files = []
     for root, _, filenames in os.walk(temp_dir):
-        for filename in filenames):
+        for filename in filenames:
             files.append(os.path.join(root, filename))
     return files
-
 def extract_zip(zip_file):
     try:
         with zipfile.ZipFile(zip_file, 'r', allowZip64=True) as zip_ref:
