@@ -299,7 +299,7 @@ def view_logs():
         st.write("Files to Delete:")
         st.write(selection)
 
-        if st.button("Delete Selected Logs"):
+        if st.button("Delete"):
             indices = selection.index.tolist()
             deleted_entries = delete_logs(indices)
             for entry in deleted_entries:
