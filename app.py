@@ -338,7 +338,7 @@ def view_logs():
                 df_with_selections,
                 hide_index=True,
                 column_config={"Delete": st.column_config.CheckboxColumn(required=True)},
-                disabled=df_logs.columns, width=1000, height=600,
+                disabled=df_logs.columns, width=1200, height=600,
             )
 
             selected_rows = edited_df[edited_df.Delete]
