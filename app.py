@@ -207,7 +207,7 @@ def zip_extractor():
                             status_code, response_text = result
                            
                             filename = os.path.basename(file)
-                            st.success(f"Status: {filename,status_code}, Response: {response_text}")
+                            st.success(f"Status: {status_code}, Response: {response_text}")
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             log_entry = {
                                 "filename": filename,
