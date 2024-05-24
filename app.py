@@ -273,7 +273,6 @@ def view_logs():
         st.write("No logs to display.")
 
 
-
 if __name__ == '__main__':
     main()
 
