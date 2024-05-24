@@ -13,10 +13,8 @@ from datetime import datetime
 from streamlit_option_menu import option_menu
 import pandas as pd
 
-logs=[]
-# Session state for logs
-if 'logs' not in st.session_state:
-    st.session_state['logs'] = []
+
+logs = []
 chat_history = []
 
 def get_img_as_base64(file):
@@ -128,16 +126,14 @@ def process_file(file, collection, doc_type, chunk_size=300):
     # Log the details
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_entry = {
-        "filename": os.path.basename(file),
-        "collection": collection,
-        "type": doc_type,
-        "status_code": status_code,
-        "message": response_text,
-        "timestamp": timestamp
-    }
-    
-    # Add log to session state
-    st.session_state['logs'].append(log_entry)
+            "filename": file,
+            "collection": collection,
+            "type": doc_type,
+            "status_code": status_code,  # Assuming success for simplicity
+            "message": response_text,
+            "timestamp": timestamp
+        }
+    add_log(log_entry)
     
     return status_code, response_text
 
@@ -220,7 +216,19 @@ def zip_extractor():
                         for result in results:
                             status_code, response_text = result
                             st.write(f"Status: {status_code}, Response: {response_text}")
-                        
+                        # Add logs for each processed file
+                        for file, collection, doc_type in to_process:
+                            filename = os.path.basename(file)
+                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            log_entry = {
+                                "filename": filename,
+                                "collection": collection,
+                                "type": doc_type,
+                                "status_code": status_code,  # Assuming success for simplicity
+                                "message": response_text,
+                                "timestamp": timestamp
+                            }
+                            #add_log(log_entry)
                 else:
                     st.error("Please enter both collection name and type.")
 
@@ -244,7 +252,7 @@ def example():
             st.write(f"**👧🏻 User:** {message['content']}")
 
 def view_logs():
-    logs = st.session_state['logs']
+    logs=get_logs()
     st.title("View Logs")
     st.caption("Select the files that you want to undo the training.")
 
