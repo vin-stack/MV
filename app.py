@@ -272,6 +272,7 @@ def view_logs():
             return deleted_entries
 
         def kl(collection, message):
+            st.write("dshj")
             # Implement your kl function logic here
             st.write(message)
             st.write(collection)
