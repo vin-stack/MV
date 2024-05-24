@@ -320,6 +320,7 @@ def view_logs():
         df_logs = pd.DataFrame(logs)
         df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp'])
         df_logs.sort_values(by='timestamp', ascending=False, inplace=True)
+        print("Logs DataFrame Columns:", df_logs.columns)  # Debug print
         
         def delete_logs(indices):
             indices_to_move = [idx for idx in indices if idx < len(logs)]
