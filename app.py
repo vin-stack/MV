@@ -109,7 +109,7 @@ def post_chunks_to_api(file, chunks, collection, doc_type):
     response = requests.post(url, json=data)
     return response.status_code, response.text
 
-@st.experimental_singleton
+@st.cache_resource
 def get_logs():
     return []
 
@@ -271,7 +271,7 @@ def view_logs():
                 st.write(collection)
                 kl(collection, message)  # Call the kl function with collection and message values
                 del logs[idx]  # Delete the log entry at the specified index
-            st.experimental_set_query_params(logs=logs)  # Save updated logs
+            st.query_params(logs=logs)  # Save updated logs
             # Update the logs displayed in the UI
             st.experimental_rerun()
 
