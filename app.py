@@ -298,25 +298,26 @@ def view_logs():
         df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp'])
         
         def delete_logs(indices):
-            # Reverse the logs to match the original order before deleting
-            logs.reverse()
-            indices_to_drop = [idx for idx in indices if idx < len(logs)]
-            indices_to_drop.sort(reverse=True)
-            for idx in indices_to_drop:
-                log_entry = logs[idx]
-                if log_entry["username"] == st.session_state.username:
-                    collection = log_entry["collection"]
-                    message = log_entry["message"]
-                    kl(collection, message)
-                    del logs[idx]
-                else:
-                    st.error("Restricted: You can only delete your own logs.")
-                    time.sleep(10)
-            # After processing, reverse the logs again to restore the original order
-            logs.reverse()
-            st.query_params.logs = logs
-            st.rerun()
-
+            # Check if logs exist and the list is not empty
+            if logs:
+                indices_to_drop = [idx for idx in indices if idx < len(logs)]
+                indices_to_drop.sort(reverse=True)
+                for idx in indices_to_drop:
+                    log_entry = logs[idx]
+                    if log_entry["username"] == st.session_state.username:
+                        collection = log_entry["collection"]
+                        message = log_entry["message"]
+                        kl(collection, message)
+                        del logs[idx]
+                    else:
+                        st.error("Restricted: You can only delete your own logs.")
+                        time.sleep(10)
+                # Reverse the logs again to restore the original order
+                logs.reverse()
+                st.query_params.logs = logs
+                st.rerun()
+    else:
+        st.warning("No logs available to delete.")
         def kl(collection, message):
             parsed_data = json.loads(message)
             result = parsed_data["msg"]
