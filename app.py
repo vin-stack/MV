@@ -116,7 +116,7 @@ def get_logs():
 def add_log(log):
     logs = get_logs()
     logs.append(log)
-    st.query_params(logs=logs)
+    #st.query_params(logs=logs)
 
 def process_file(file, collection, doc_type, chunk_size=300):
     text = extract_text(file)
@@ -271,7 +271,7 @@ def view_logs():
                 st.write(collection)
                 kl(collection, message)  # Call the kl function with collection and message values
                 del logs[idx]  # Delete the log entry at the specified index
-            st.query_params(logs=logs)  # Save updated logs
+            #st.query_params(logs=logs)  # Save updated logs
             # Update the logs displayed in the UI
             st.rerun()
 
