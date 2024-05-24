@@ -270,7 +270,7 @@ def view_logs():
         st.data_editor(
             df_logs,
             column_config={
-                "Remove": st.column_config.CheckboxColumn(
+                "Delete": st.column_config.CheckboxColumn(
                     "Delete?",
                     help="Select log entries to delete",
                     default=False
