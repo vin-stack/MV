@@ -11,7 +11,7 @@ import docx
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from streamlit_option_menu import option_menu
-
+import pandas as pd
 logs = []
 chat_history = []
 
@@ -248,21 +248,32 @@ def example():
         elif message["role"] == "user":
             st.write(f"**👧🏻 User:** {message['content']}")
 
+def delete_log(index):
+    # Function to delete log entry by index
+    logs = get_logs()
+    del logs[index]
+    st.experimental_set_query_params(logs=logs)
+
 def view_logs():
     logs = get_logs()
 
     st.title("View Logs")
     if logs:
-        for log in logs:
-            st.write(f"**Filename:** {log['filename']}")
-            st.write(f"**Collection:** {log.get('collection', 'N/A')}")  # Display collection name or 'N/A' if not present
-            st.write(f"**Type:** {log.get('type', 'N/A')}")              # Display document type or 'N/A' if not present
-            st.write(f"**Status Code:** {log['status_code']}")
-            st.write(f"**Message:** {log['message']}")
-            st.write(f"**Timestamp:** {log['timestamp']}")
-            st.markdown("---")
+        # Convert logs to DataFrame for easier display
+        logs_df = pd.DataFrame(logs)
+
+        # Display logs as a table
+        st.dataframe(logs_df)
+
+        # Add a delete button for each log entry
+        for index, row in logs_df.iterrows():
+            if st.button(f"Delete {row['filename']}"):
+                # Call a function to handle log deletion
+                delete_log(index)
     else:
         st.write("No logs to display.")
+
+
 
 
 if __name__ == '__main__':
