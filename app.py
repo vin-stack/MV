@@ -228,7 +228,7 @@ def zip_extractor():
                                 "message": response_text,
                                 "timestamp": timestamp
                             }
-                            add_log(log_entry)
+                            #add_log(log_entry)
                 else:
                     st.error("Please enter both collection name and type.")
 
