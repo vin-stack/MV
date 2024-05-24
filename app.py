@@ -250,29 +250,26 @@ def example():
         elif message["role"] == "user":
             st.write(f"**👧🏻 User:** {message['content']}")
 
-def delete_logs(indices):
-    st.write(1)
-    logs = get_logs()  # Retrieve logs using get_logs function
-    logs_df = pd.DataFrame(logs)  # Convert logs to DataFrame
-    indices_to_drop = [idx for idx in indices if idx < len(logs_df)]  # Filter out invalid indices
-    logs_df = logs_df.drop(indices_to_drop).reset_index(drop=True)  # Drop rows with valid indices
-    logs = logs_df.to_dict(orient="records")
-    st.write(2)# Convert DataFrame back to list of dictionaries
-    st.experimental_set_query_params(logs=logs)  # Save updated logs
-    # Update the logs displayed in the UI
-    st.write(3)
-    st.experimental_rerun()
-    st.write(4)
-
 def view_logs():
     logs = get_logs()
     st.title("View Logs")
-    st.caption("select the files that you want to undo the training.")
+    st.caption("Select the files that you want to undo the training.")
 
     if logs:
         # Create DataFrame from logs
         df_logs = pd.DataFrame(logs)
         
+        def delete_logs(indices):
+            global logs
+            logs = get_logs()  # Retrieve logs using get_logs function
+            logs_df = pd.DataFrame(logs)  # Convert logs to DataFrame
+            indices_to_drop = [idx for idx in indices if idx < len(logs_df)]  # Filter out invalid indices
+            logs_df = logs_df.drop(indices_to_drop).reset_index(drop=True)  # Drop rows with valid indices
+            logs = logs_df.to_dict(orient="records")  # Convert DataFrame back to list of dictionaries
+            st.experimental_set_query_params(logs=logs)  # Save updated logs
+            # Update the logs displayed in the UI
+            st.experimental_rerun()
+
         def dataframe_with_selections(df_logs):
             df_with_selections = df_logs.copy()
             df_with_selections.insert(0, "Delete", False)
@@ -289,14 +286,16 @@ def view_logs():
             selected_rows = edited_df[edited_df.Delete]
             return selected_rows.drop('Delete', axis=1)
 
-
         selection = dataframe_with_selections(df_logs)
         st.write("Files to Delete:")
         st.write(selection)
 
+        if st.button("Delete Selected Logs"):
+            indices = selection.index.tolist()
+            delete_logs(indices)
+
     else:
         st.write("No logs to display.")
-
 
 if __name__ == '__main__':
     main()
