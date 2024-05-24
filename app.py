@@ -298,8 +298,7 @@ def view_logs():
         df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp'])
         
         def delete_logs(indices):
-            # Check if logs exist and the list is not empty
-            if logs:
+            if logs:  # Check if logs exist and the list is not empty
                 indices_to_drop = [idx for idx in indices if idx < len(logs)]
                 indices_to_drop.sort(reverse=True)
                 for idx in indices_to_drop:
@@ -324,6 +323,7 @@ def view_logs():
                     st.warning("All logs have been deleted.")
             else:
                 st.warning("No logs available to delete.")
+
         def kl(collection, message):
             parsed_data = json.loads(message)
             result = parsed_data["msg"]
