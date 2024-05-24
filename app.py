@@ -263,8 +263,8 @@ def zip_extractor(username):
                                 "type": doc_type,
                                 "username": username,
                                 "status_code": status_code,
-                                "message": response_text,
                                 "chunk_count": chunk_count,
+                                "message": response_text,
                                 "timestamp": timestamp
                             }
                             add_log(log_entry)
