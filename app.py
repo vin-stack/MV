@@ -298,31 +298,20 @@ def view_logs():
         df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp'])
         
         def delete_logs(indices):
-            if logs:  # Check if logs exist and the list is not empty
-                indices_to_drop = [idx for idx in indices if idx < len(logs)]
-                indices_to_drop.sort(reverse=True)
-                for idx in indices_to_drop:
-                    log_entry = logs[idx]
-                    if log_entry["username"] == st.session_state.username:
-                        collection = log_entry["collection"]
-                        message = log_entry["message"]
-                        kl(collection, message)
-                        del logs[idx]
-                    else:
-                        st.error("Restricted: You can only delete your own logs.")
-                        time.sleep(10)
-                # Check if logs still exist after deletion
-                if logs:
-                    # Reverse the logs again to restore the original order
-                    logs.reverse()
-                    st.query_params.logs = logs
-                    st.rerun()
+            indices_to_drop = [idx for idx in indices if idx < len(logs)]
+            indices_to_drop.sort(reverse=True)
+            for idx in indices_to_drop:
+                log_entry = logs[idx]
+                if log_entry["username"] == st.session_state.username:
+                    collection = log_entry["collection"]
+                    message = log_entry["message"]
+                    kl(collection, message)
+                    del logs[idx]
                 else:
-                    # If no logs exist, clear the query parameters
-                    st.query_params.clear()
-                    st.warning("All logs have been deleted.")
-            else:
-                st.warning("No logs available to delete.")
+                    st.error("Restricted: You can only delete your own logs.")
+                    time.sleep(10)
+            st.query_params.logs = logs
+            st.rerun()
 
         def kl(collection, message):
             parsed_data = json.loads(message)
@@ -337,7 +326,7 @@ def view_logs():
 
         def dataframe_with_selections(df_logs):
             df_with_selections = df_logs.copy()
-           
+            df_with_selections.insert(2, "Username", df_logs['username'])
             df_with_selections.insert(0, "Delete", False)
 
             edited_df = st.data_editor(
