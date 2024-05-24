@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from streamlit_option_menu import option_menu
 import pandas as pd
-from streamlit_experimental_pandas import st_dataframe
+from streamlit_extras.dataframe_explorer import dataframe_explorer
 
 logs = []
 chat_history = []
