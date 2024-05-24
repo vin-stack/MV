@@ -300,7 +300,8 @@ def view_logs():
         st.write("Files to Delete:")
         st.write(selection)
 
-        if st.button("Delete Selected Logs"):
+        if st.button("Delete"):
+            st.write("sdjb")
             indices = selection.index.tolist()
             delete_logs(indices)
 
