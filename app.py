@@ -250,12 +250,13 @@ def example():
         elif message["role"] == "user":
             st.write(f"**👧🏻 User:** {message['content']}")
 
-def delete_log(index):
-    # Function to delete log entry by index
+def delete_logs(indices):
+    st.write("jjbsd")
+    global logs
     logs = get_logs()
-    st.write("hbdhf")
-    #del logs[index]
-    #st.experimental_set_query_params(logs=logs)
+    logs = [log for i, log in enumerate(logs) if i not in indices]
+    st.experimental_set_query_params(logs=logs)
+
 
 def view_logs():
     logs=get_logs()
