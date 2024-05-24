@@ -198,7 +198,7 @@ def auth_page():
                 st.success("Login successful")
                 st.session_state.authenticated = True
                 st.session_state.username = username
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Invalid username or password")
 
@@ -307,7 +307,7 @@ def view_logs():
                 else:
                     st.error("Restricted: You can only delete your own logs.")
             st.query_params.logs = logs
-            st.experimental_rerun()
+            st.rerun()
 
         def kl(collection, message):
             parsed_data = json.loads(message)
