@@ -212,11 +212,11 @@ def zip_extractor():
                                 except Exception as e:
                                     st.error(f"Error processing file: {e}")
                         
-                            # Display results
-                            for result in results:
-                                status_code, response_text = result
-                                st.write(f"Status: {status_code}, Response: {response_text}")
-                            # Add logs for each processed file
+                        # Display results
+                        for result in results:
+                            status_code, response_text = result
+                            st.write(f"Status: {status_code}, Response: {response_text}")
+                        # Add logs for each processed file
                             for file, collection, doc_type in to_process:
                                 filename = os.path.basename(file)
                                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
