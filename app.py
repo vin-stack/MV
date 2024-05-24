@@ -254,6 +254,8 @@ def view_logs():
     if logs:
         for log in logs:
             st.write(f"**Filename:** {log['filename']}")
+            st.write(f"**Collection:** {log['collection']}")
+            st.write(f"**Type:** {log['doc_type']}")
             st.write(f"**Status Code:** {log['status_code']}")
             st.write(f"**Message:** {log['message']}")
             st.write(f"**Timestamp:** {log['timestamp']}")
