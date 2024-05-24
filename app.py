@@ -265,6 +265,7 @@ def view_logs():
             for idx in indices_to_drop:
                 log_entry = logs[idx]
                 collection = log_entry["collection"]
+                print(collection)
                 message = log_entry["message"]
                 st.write(collection)
                 kl(collection, message)  # Call the kl function with collection and message values
