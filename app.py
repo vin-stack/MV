@@ -123,16 +123,7 @@ def process_file(file, collection, doc_type, chunk_size=300):
     chunks = chunk_text(text, chunk_size)
     status_code, response_text = post_chunks_to_api(file, chunks, collection, doc_type)
     
-    # Log the details
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    logs.append({
-        "filename": os.path.basename(file),
-        "collection": collection,
-        "type": doc_type,
-        "status_code": status_code,
-        "message": response_text,
-        "timestamp": timestamp
-    })
+ 
     
     return status_code, response_text
 
