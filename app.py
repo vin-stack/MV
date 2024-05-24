@@ -294,6 +294,7 @@ def view_logs():
             to_delete_indices = [i for i, checked in enumerate(df_logs["Delete"]) if checked]
             delete_logs(to_delete_indices)
             st.write("Selected logs deleted successfully.")
+            get_logs()
 
     else:
         st.write("No logs to display.")
