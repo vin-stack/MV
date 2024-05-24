@@ -216,6 +216,8 @@ def zip_extractor():
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             log_entry = {
                                 "filename": filename,
+                                "collection": collection,  # Adding collection name to the log
+                                "type": doc_type,
                                 "status_code": status_code,  # Assuming success for simplicity
                                 "message": response_text,
                                 "timestamp": timestamp
