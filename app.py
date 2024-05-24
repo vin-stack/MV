@@ -16,9 +16,6 @@ import sqlite3
 from hashlib import sha256
 import time
 
-# Additional import for reranking
-from llm_hybrid_retriever import LLMHybridRetriever
-
 logs = []
 chat_history = []
 
@@ -150,11 +147,6 @@ def process_file(file, collection, doc_type, chunk_size=300):
     chunk_count = len(chunks)
     return status_code, response_text, chunk_count
 
-def rerank_results(query, documents, top_k=6):
-    retriever = LLMHybridRetriever()
-    ranked_results = retriever.reranker(query, documents, top_k, return_type=list, show_scores=True)
-    return ranked_results
-
 def chat_with_model(query):
     api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"
     payload = {
@@ -169,9 +161,7 @@ def chat_with_model(query):
         response = requests.post(api_url, data=json.dumps(payload), headers={"Content-Type": "application/json"})
         if response.status_code == 200:
             response_text = response.text
-            documents = json.loads(response_text).get("documents", [])
-            ranked_results = rerank_results(query, documents)
-            return ranked_results
+            return response_text
         else:
             return f"Error: Received status code {response.status_code}\nResponse: {response.text}"
     except requests.exceptions.RequestException as e:
@@ -289,14 +279,8 @@ def example():
     if st.button("ASK HANNA->"):
         with st.spinner('🤔 Hanna is thinking...'):
             response = chat_with_model(query)
-            if isinstance(response, list):
-                chat_history.append({"role": "user", "content": query})
-                chat_history.append({"role": "assistant", "content": "Reranked Results:"})
-                for result in response:
-                    chat_history.append({"role": "assistant", "content": f"{result[0]} (Score: {result[1]})"})
-            else:
-                chat_history.append({"role": "assistant", "content": response})
-                chat_history.append({"role": "user", "content": query})
+            chat_history.append({"role": "assistant", "content": response})
+            chat_history.append({"role": "user", "content": query})
 
     for message in reversed(chat_history):
         if message["role"] == "assistant":
