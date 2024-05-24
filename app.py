@@ -288,7 +288,7 @@ def view_logs():
         )
 
         # Check for deletion button click
-        if st.button("Delete Selected Logs"):
+        if st.button("Delete",key="jjnd"):
             st.write(0)
             to_delete_indices = [i for i, checked in enumerate(df_logs["Delete"]) if checked]
             delete_logs(to_delete_indices)
