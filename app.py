@@ -189,8 +189,9 @@ def main():
         auth_page()
 
 def auth_page():
-    auth_mode = st.radio("Choose Authentication Mode", ["Login", "Register"])
     st.title("MASTER VECTORS")
+    auth_mode = st.radio("Choose Authentication Mode", ["Login", "Register"])
+    
     if auth_mode == "Login":
         st.subheader("Login")
         username = st.text_input("Username")
