@@ -309,6 +309,8 @@ def view_logs():
                     message = log_entry["message"]
                     kl(collection, message)
                     del logs[idx]
+                    st.success("Files removed successfully.")
+                    time.sleep(10)
                 else:
                     st.error("Restricted: You can only delete your own logs.")
                     time.sleep(10)
@@ -346,8 +348,7 @@ def view_logs():
         if st.button("Delete"):
             indices = selection.index.tolist()
             delete_logs(indices)
-            st.success("Files removed successfully.")
-            time.sleep(10)
+            
             
     else:
         st.write("No logs to display.")
