@@ -262,11 +262,19 @@ def view_logs():
         def delete_logs(indices):
             indices_to_drop = [idx for idx in indices if idx < len(logs)]  # Filter out invalid indices
             indices_to_drop.sort(reverse=True)  # Sort in descending order to avoid index shifting
+            deleted_entries = []
             for idx in indices_to_drop:
-                del logs[idx]  # Delete the log entry at the specified index
+                deleted_entry = logs.pop(idx)  # Remove and get the deleted log entry
+                deleted_entries.append(deleted_entry)
             st.experimental_set_query_params(logs=logs)  # Save updated logs
             # Update the logs displayed in the UI
             st.experimental_rerun()
+            return deleted_entries
+
+        def kl(collection, message):
+            # Implement your kl function logic here
+            print(f"Collection: {collection}, Message: {message}")
+            # Replace print statement with your desired logic
 
         def dataframe_with_selections(df_logs):
             df_with_selections = df_logs.copy()
@@ -290,10 +298,11 @@ def view_logs():
 
         if st.button("Delete Selected Logs"):
             indices = selection.index.tolist()
-            delete_logs(indices)
+            deleted_entries = delete_logs(indices)
+            for entry in deleted_entries:
+                kl(entry["collection"], entry["message"])  # Call kl function for each deleted file
 
     else:
         st.write("No logs to display.")
 if __name__ == '__main__':
     main()
-
