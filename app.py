@@ -318,7 +318,7 @@ def view_logs():
         def delete_logs(indices):
             indices_to_drop = [idx for idx in indices if idx < len(logs)]
             indices_to_drop.sort(reverse=True)
-            for idx in indices to_drop:
+            for idx in indices_to_drop:
                 log_entry = logs[idx]
                 if log_entry["username"] == st.session_state.username:
                     collection = log_entry["collection"]
