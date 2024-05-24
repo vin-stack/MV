@@ -312,7 +312,7 @@ def view_logs():
                     st.success("Files removed successfully.")
                     time.sleep(10)
                 else:
-                    st.error("Restricted: You can only delete your own logs.")
+                    st.error("Restricted: You can only delete your own files only.")
                     time.sleep(10)
             st.query_params.logs = logs
             st.rerun()
