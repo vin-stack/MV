@@ -255,14 +255,15 @@ def view_logs():
     if logs:
         for log in logs:
             st.write(f"**Filename:** {log['filename']}")
-            st.write(f"**Collection:** {log['collection']}")  # Display collection name
-            st.write(f"**Type:** {log['type']}")              # Display document type
+            st.write(f"**Collection:** {log.get('collection', 'N/A')}")  # Display collection name or 'N/A' if not present
+            st.write(f"**Type:** {log.get('type', 'N/A')}")              # Display document type or 'N/A' if not present
             st.write(f"**Status Code:** {log['status_code']}")
             st.write(f"**Message:** {log['message']}")
             st.write(f"**Timestamp:** {log['timestamp']}")
             st.markdown("---")
     else:
         st.write("No logs to display.")
+
 
 if __name__ == '__main__':
     main()
