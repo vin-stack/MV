@@ -326,16 +326,16 @@ def view_logs():
             indices_to_move.sort(reverse=True)
             for idx in indices_to_move:
                 log_entry = logs[idx]
-                print("Log Entry:", log_entry)  # Add this line for debugging
+                print("Log Entry Keys:", log_entry.keys())  # Add this line for debugging
                 if log_entry["username"] == st.session_state.username:
                     log_entry_json = {
-                        "log_id": log_entry["log_id"],
-                        "username": log_entry["username"],
-                        "log_entry": log_entry["log_entry"],
-                        "timestamp": log_entry["timestamp"]
+                        "log_id": log_entry.get("log_id"),
+                        "username": log_entry.get("username"),
+                        "log_entry": log_entry.get("log_entry"),
+                        "timestamp": log_entry.get("timestamp")
                     }
                     print("Log Entry JSON:", log_entry_json)  # Add this line for debugging
-                    move_to_bin(log_entry["log_id"], log_entry["username"], json.dumps(log_entry_json), log_entry["timestamp"])
+                    move_to_bin(log_entry.get("log_id"), log_entry.get("username"), json.dumps(log_entry_json), log_entry.get("timestamp"))
                     del logs[idx]
                     st.success("Files moved to bin successfully.")
                     time.sleep(3)
