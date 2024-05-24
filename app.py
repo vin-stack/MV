@@ -327,7 +327,13 @@ def view_logs():
             for idx in indices_to_move:
                 log_entry = logs[idx]
                 if log_entry["username"] == st.session_state.username:
-                    move_to_bin(log_entry["log_id"], log_entry["username"], json.dumps(log_entry), log_entry["timestamp"])
+                    log_entry_json = {
+                        "log_id": log_entry["log_id"],
+                        "username": log_entry["username"],
+                        "log_entry": log_entry["log_entry"],
+                        "timestamp": log_entry["timestamp"]
+                    }
+                    move_to_bin(log_entry["log_id"], log_entry["username"], json.dumps(log_entry_json), log_entry["timestamp"])
                     del logs[idx]
                     st.success("Files moved to bin successfully.")
                     time.sleep(3)
