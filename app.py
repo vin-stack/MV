@@ -19,7 +19,6 @@ import time
 logs = []
 chat_history = []
 
-
 # Database setup
 conn = sqlite3.connect('users.db')
 c = conn.cursor()
@@ -74,6 +73,7 @@ def extract_all_files(zip_ref, temp_dir):
         for filename in filenames:
             files.append(os.path.join(root, filename))
     return files
+
 def extract_zip(zip_file):
     try:
         with zipfile.ZipFile(zip_file, 'r', allowZip64=True) as zip_ref:
@@ -144,7 +144,8 @@ def process_file(file, collection, doc_type, chunk_size=300):
     text = extract_text(file)
     chunks = chunk_text(text, chunk_size)
     status_code, response_text = post_chunks_to_api(file, chunks, collection, doc_type)
-    return status_code, response_text
+    chunk_count = len(chunks)
+    return status_code, response_text, chunk_count
 
 def chat_with_model(query):
     api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"
@@ -170,8 +171,6 @@ def main():
     global logs
     global chat_history
 
-   
-    
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
     
@@ -254,18 +253,18 @@ def zip_extractor(username):
                                 except Exception as e:
                                     st.error(f"Error processing file: {e}")
 
-                        for file, (status_code, response_text) in results:
+                        for file, (status_code, response_text, chunk_count) in results:
                             filename = os.path.basename(file)
-                            st.success(f"Status: {filename}, {status_code}, Response: {response_text}")
+                            st.success(f"Status: {filename}, {status_code}, Response: {response_text}, Chunks: {chunk_count}")
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             log_entry = {
-                                
                                 "filename": filename,
                                 "collection": collection,
                                 "type": doc_type,
                                 "username": username,
                                 "status_code": status_code,
                                 "message": response_text,
+                                "chunk_count": chunk_count,
                                 "timestamp": timestamp
                             }
                             add_log(log_entry)
@@ -296,13 +295,12 @@ def view_logs():
     st.caption("Select the files that you want to undo the training.")
 
     if logs:
-        #logs = reversed(logs)
         df_logs = pd.DataFrame(logs)
         df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp'])
         df_logs.sort_values(by='timestamp', ascending=False, inplace=True)
         
         def delete_logs(indices):
-            indices_to_drop = [idx for idx in indices if idx < len(logs)]
+            indices_to drop = [idx for idx in indices if idx < len(logs)]
             indices_to_drop.sort(reverse=True)
             for idx in indices_to_drop:
                 log_entry = logs[idx]
@@ -330,11 +328,7 @@ def view_logs():
 
         def dataframe_with_selections(df_logs):
             df_with_selections = df_logs.copy()
-            #df_with_selections.insert(3, "Username", df_logs['username'])
             df_with_selections.insert(0, "Delete", False)
-            #df_with_selections.drop(columns=['username'], inplace=True)
-            
-
             edited_df = st.data_editor(
                 df_with_selections,
                 hide_index=True,
