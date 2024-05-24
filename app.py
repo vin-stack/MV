@@ -271,29 +271,28 @@ def view_logs():
     if logs:
         # Create DataFrame from logs
         df_logs = pd.DataFrame(logs)
-        df_logs.insert(0,"Delete", " ")
-        # Add a column for checkboxes
         
-        st.data_editor(
-            df_logs,
-            column_config={
-                "Delete": st.column_config.CheckboxColumn(
-                    "Delete?",
-                    help="Select log entries to delete",
-                    default=False
-                )
-            },
-            disabled=["filename", "collection", "type", "status_code", "message", "timestamp"],
-            hide_index=True,
-        )
-        selected_indices = st.dataframe(df_logs.style.format({"timestamp": "{:%Y-%m-%d %H:%M:%S}"}))
+        def dataframe_with_selections(df_logs):
+            df_with_selections = df_logs.copy()
+            df_with_selections.insert(0, "Delete", False)
 
-        # Check for deletion button click
-        if st.button("Delete Selected Logs"):
-            # Get the indices of checked checkboxes
-            to_delete_indices = [i for i, checked in enumerate(selected_indices.iloc[:, 0]) if checked]
-            delete_logs(to_delete_indices)  # Call delete_logs with the indices
-            st.write("Selected logs deleted successfully.")
+            # Get dataframe row-selections from user with st.data_editor
+            edited_df = st.data_editor(
+                df_with_selections,
+                hide_index=True,
+                column_config={"Delete": st.column_config.CheckboxColumn(required=True)},
+                disabled=df_logs.columns,
+            )
+
+            # Filter the dataframe using the temporary column, then drop the column
+            selected_rows = edited_df[edited_df.Select]
+            return selected_rows.drop('Deleted', axis=1)
+
+
+        selection = dataframe_with_selections(df_logs)
+        st.write("Your selection:")
+        st.write(selection)
+
     else:
         st.write("No logs to display.")
 
