@@ -273,7 +273,7 @@ def view_logs():
                 del logs[idx]  # Delete the log entry at the specified index
             st.experimental_set_query_params(logs=logs)  # Save updated logs
             # Update the logs displayed in the UI
-            st.experimental_rerun()
+            st.rerun()
 
         def kl(collection, message):
             st.write(collection)
