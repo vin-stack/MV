@@ -258,10 +258,11 @@ def zip_extractor(username):
                             st.success(f"Status: {filename}, {status_code}, Response: {response_text}")
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             log_entry = {
-                                "username": username,
+                                
                                 "filename": filename,
                                 "collection": collection,
                                 "type": doc_type,
+                                "username": username,
                                 "status_code": status_code,
                                 "message": response_text,
                                 "timestamp": timestamp
