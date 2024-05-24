@@ -22,13 +22,9 @@ chat_history = []
 # Database setup
 conn = sqlite3.connect('users.db')
 c = conn.cursor()
-# Modify Database Schema
 c.execute('''
-          CREATE TABLE IF NOT EXISTS deleted_logs
-          (log_id INTEGER PRIMARY KEY AUTOINCREMENT,
-           username TEXT,
-           log_entry TEXT,
-           timestamp TEXT)
+          CREATE TABLE IF NOT EXISTS users
+          (username TEXT, password TEXT)
           ''')
 conn.commit()
 
@@ -143,30 +139,6 @@ def add_log(log):
     logs = get_logs()
     logs.append(log)
     st.query_params.logs = logs
-    
-# Create Bin Functionality
-def move_to_bin(log_id, username, log_entry, timestamp):
-    conn = sqlite3.connect('logs.db')
-    c = conn.cursor()
-    
-    # Insert the log entry into the bin table
-    c.execute('INSERT INTO bin_logs (log_id, username, log_entry, timestamp) VALUES (?, ?, ?, ?)', (log_id, username, log_entry, timestamp))
-    
-    # Delete the log entry from the logs table
-    c.execute('DELETE FROM logs WHERE log_id = ?', (log_id,))
-    
-    conn.commit()
-    conn.close()
-
-def restore_from_bin(log_id, username, log_entry, timestamp):
-    c.execute('INSERT INTO logs (username, log_entry, timestamp) VALUES (?, ?, ?)', (username, log_entry, timestamp))
-    conn.commit()
-    c.execute('DELETE FROM deleted_logs WHERE log_id = ?', (log_id,))
-    conn.commit()
-
-def get_bin_logs():
-    c.execute('SELECT * FROM deleted_logs')
-    return c.fetchall()
 
 def process_file(file, collection, doc_type, chunk_size=300):
     text = extract_text(file)
@@ -319,107 +291,64 @@ def example():
 
 def view_logs():
     logs = get_logs()
-    bin_logs = get_bin_logs()
     st.title("View Logs")
-    st.caption("Select the files that you want to delete or restore.")
+    st.caption("Select the files that you want to undo the training.")
 
     if logs:
         df_logs = pd.DataFrame(logs)
         df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp'])
         df_logs.sort_values(by='timestamp', ascending=False, inplace=True)
-        print("Logs DataFrame Columns:", df_logs.columns)  # Debug print
         
         def delete_logs(indices):
-            indices_to_move = [idx for idx in indices if idx < len(logs)]
-            indices_to_move.sort(reverse=True)
-            for idx in indices_to_move:
+            indices_to_drop = [idx for idx in indices if idx < len(logs)]
+            indices_to_drop.sort(reverse=True)
+            for idx in indices_to_drop:
                 log_entry = logs[idx]
-                print("Log Entry:", log_entry)  # Add this line for debugging
                 if log_entry["username"] == st.session_state.username:
-                    log_entry_json = {
-                        "log_id": idx,  # Using the index as the identifier
-                        "username": log_entry.get("username"),
-                        "log_entry": log_entry.get("log_entry"),
-                        "timestamp": log_entry.get("timestamp")
-                    }
-                    print("Log Entry JSON:", log_entry_json)  # Add this line for debugging
-                    move_to_bin(idx, log_entry.get("username"), json.dumps(log_entry_json), log_entry.get("timestamp"))
+                    collection = log_entry["collection"]
+                    message = log_entry["message"]
+                    kl(collection, message)
                     del logs[idx]
-                    st.success("Files moved to bin successfully.")
-                    time.sleep(3)
+                    st.success("Files removed successfully.")
+                    time.sleep(10)
                 else:
-                    st.error("Restricted: You can only delete your own files.")
-                    time.sleep(3)
+                    st.error("Restricted: You can only delete your own files only.")
+                    time.sleep(10)
             st.query_params.logs = logs
             st.rerun()
 
-
-        def restore_logs(indices):
-            indices_to_restore = [idx for idx in indices if idx < len(bin_logs)]
-            indices_to_restore.sort(reverse=True)
-            for idx in indices_to_restore:
-                log_entry = bin_logs[idx]
-                if log_entry["username"] == st.session_state.username:
-                    restore_from_bin(log_entry["log_id"], log_entry["username"], log_entry["log_entry"], log_entry["timestamp"])
-                    st.success("Files restored successfully.")
-                    time.sleep(3)
-                else:
-                    st.error("Restricted: You can only restore your own files.")
-                    time.sleep(3)
-            st.rerun()
-
-        def delete_bin_logs(indices):
-            indices_to_delete = [idx for idx in indices if idx < len(bin_logs)]
-            indices_to_delete.sort(reverse=True)
-            for idx in indices_to_delete:
-                log_entry = bin_logs[idx]
-                if log_entry["username"] == st.session_state.username:
-                    c.execute('DELETE FROM deleted_logs WHERE log_id = ?', (log_entry["log_id"],))
-                    conn.commit()
-                    st.success("Files permanently deleted from bin.")
-                    time.sleep(3)
-                else:
-                    st.error("Restricted: You can only delete your own files from the bin.")
-                    time.sleep(3)
-            st.rerun()
+        def kl(collection, message):
+            parsed_data = json.loads(message)
+            result = parsed_data["msg"]
+            url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/remove-master-objects/uuid/'
+            data = {
+                'collection': collection,
+                'uuid': result
+            }
+            response = requests.post(url, json=data)
+            return response
 
         def dataframe_with_selections(df_logs):
             df_with_selections = df_logs.copy()
-            df_with_selections.insert(0, "Select", False)
+            df_with_selections.insert(0, "Delete", False)
             edited_df = st.data_editor(
                 df_with_selections,
                 hide_index=True,
-                column_config={"Select": st.column_config.CheckboxColumn(required=True)},
+                column_config={"Delete": st.column_config.CheckboxColumn(required=True)},
                 disabled=df_logs.columns,
             )
 
-            selected_rows = edited_df[edited_df.Select]
-            return selected_rows.drop('Select', axis=1)
+            selected_rows = edited_df[edited_df.Delete]
+            return selected_rows.drop('Delete', axis=1)
 
         selection = dataframe_with_selections(df_logs)
-        st.write("Files to Move to Bin:")
+        st.write("Files to Delete:")
         st.write(selection)
 
-        if st.button("Move to Bin"):
+        if st.button("Delete"):
             indices = selection.index.tolist()
             delete_logs(indices)
-        
-        if bin_logs:
-            df_bin_logs = pd.DataFrame(bin_logs)
-            df_bin_logs['timestamp'] = pd.to_datetime(df_bin_logs['timestamp'])
-            df_bin_logs.sort_values(by='timestamp', ascending=False, inplace=True)
-
-            bin_selection = dataframe_with_selections(df_bin_logs)
-            st.write("Files in Bin:")
-            st.write(bin_selection)
-
-            if st.button("Restore"):
-                indices = bin_selection.index.tolist()
-                restore_logs(indices)
-
-            if st.button("Permanently Delete"):
-                indices = bin_selection.index.tolist()
-                delete_bin_logs(indices)
+            
             
     else:
         st.write("No logs to display.")
