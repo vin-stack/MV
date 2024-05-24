@@ -267,6 +267,7 @@ def delete_logs(indices):
 def view_logs():
     logs = get_logs()
     st.title("View Logs")
+    st.caption("select the files that you want to undo the training.")
 
     if logs:
         # Create DataFrame from logs
@@ -290,7 +291,7 @@ def view_logs():
 
 
         selection = dataframe_with_selections(df_logs)
-        st.write("Your selection:")
+        st.write("Files to Delete:")
         st.write(selection)
 
     else:
