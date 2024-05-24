@@ -179,7 +179,7 @@ def main():
             choice = option_menu("MASTER VECTORS", ["Train MV", "Chat", "View Logs"], 
             icons=['upload','chat', 'list'], menu_icon="server", default_index=0, orientation="Vertical")
         if choice == "Train MV":
-            zip_extractor()
+            zip_extractor(st.session_state.username)
         elif choice == "Chat":
             example()
         elif choice == "View Logs":
@@ -198,6 +198,7 @@ def auth_page():
             if authenticate_user(username, password):
                 st.success("Login successful")
                 st.session_state.authenticated = True
+                st.session_state.username = username
                 st.experimental_rerun()
             else:
                 st.error("Invalid username or password")
@@ -213,7 +214,7 @@ def auth_page():
             else:
                 st.error("Please enter a valid username and password")
 
-def zip_extractor():
+def zip_extractor(username):
     st.title("Zip File Extractor and Text Chunker")
 
     uploaded_file = st.file_uploader("Upload a zip file", type="zip")
@@ -256,6 +257,7 @@ def zip_extractor():
                             st.success(f"Status: {filename}, {status_code}, Response: {response_text}")
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             log_entry = {
+                                "username": username,
                                 "filename": filename,
                                 "collection": collection,
                                 "type": doc_type,
