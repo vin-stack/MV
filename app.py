@@ -13,7 +13,7 @@ from datetime import datetime
 from streamlit_option_menu import option_menu
 import pandas as pd
 
-
+logs=[]
 # Session state for logs
 if 'logs' not in st.session_state:
     st.session_state['logs'] = []
