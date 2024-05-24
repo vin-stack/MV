@@ -316,8 +316,9 @@ def view_logs():
                 logs.reverse()
                 st.query_params.logs = logs
                 st.rerun()
-    else:
-        st.warning("No logs available to delete.")
+            else:
+                st.warning("No logs available to delete.")
+
         def kl(collection, message):
             parsed_data = json.loads(message)
             result = parsed_data["msg"]
