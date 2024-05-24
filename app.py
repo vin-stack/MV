@@ -331,7 +331,7 @@ def view_logs():
             df_with_selections = df_logs.copy()
             df_with_selections.insert(3, "Trained by", df_logs['username'])
             df_with_selections.insert(0, "Delete", False)
-            df_logs.drop(columns=['username'], inplace=True)
+            df_with_selections.drop(columns=['username'], inplace=True)
             
 
             edited_df = st.data_editor(
