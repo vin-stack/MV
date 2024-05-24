@@ -257,16 +257,16 @@ def delete_log(index):
     st.experimental_set_query_params(logs=logs)
 
 def view_logs():
-    logs = get_logs()
+    logs=get_logs()
 
     st.title("View Logs")
 
     if logs:
         df_logs = pd.DataFrame(logs)
-        df_logs["Delete"] = st.checkbox("Delete", df_logs.index)
+        df_logs["Delete"] = st.checkbox("Delete", [False] * len(logs), key="delete_checkbox")
         if st.button("Delete File"):
-            to_delete_index = df_logs[df_logs["Delete"]].index
-            logs = [log for i, log in enumerate(logs) if i not in to_delete_index]
+            to_delete_indices = [i for i, checked in enumerate(df_logs["Delete"]) if checked]
+            logs = [log for i, log in enumerate(logs) if i not in to_delete_indices]
             st.write("Files deleted successfully.")
         st.dataframe(df_logs.drop(columns=["Delete"]))
     else:
