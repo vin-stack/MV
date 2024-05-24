@@ -273,8 +273,10 @@ def view_logs():
 
         def kl(collection, message):
             # Implement your kl function logic here
-            print(f"Collection: {collection}, Message: {message}")
-            # Replace print statement with your desired logic
+            st.write(message)
+            st.write(collection)
+            # Replace print st
+            # atement with your desired logic
 
         def dataframe_with_selections(df_logs):
             df_with_selections = df_logs.copy()
