@@ -326,16 +326,16 @@ def view_logs():
             indices_to_move.sort(reverse=True)
             for idx in indices_to_move:
                 log_entry = logs[idx]
-                print("Log Entry Keys:", log_entry.keys())  # Add this line for debugging
+                print("Log Entry:", log_entry)  # Add this line for debugging
                 if log_entry["username"] == st.session_state.username:
                     log_entry_json = {
-                        "log_id": log_entry.get("log_id"),
+                        "log_id": idx,  # Using the index as the identifier
                         "username": log_entry.get("username"),
                         "log_entry": log_entry.get("log_entry"),
                         "timestamp": log_entry.get("timestamp")
                     }
                     print("Log Entry JSON:", log_entry_json)  # Add this line for debugging
-                    move_to_bin(log_entry.get("log_id"), log_entry.get("username"), json.dumps(log_entry_json), log_entry.get("timestamp"))
+                    move_to_bin(idx, log_entry.get("username"), json.dumps(log_entry_json), log_entry.get("timestamp"))
                     del logs[idx]
                     st.success("Files moved to bin successfully.")
                     time.sleep(3)
@@ -344,6 +344,7 @@ def view_logs():
                     time.sleep(3)
             st.query_params.logs = logs
             st.rerun()
+
 
         def restore_logs(indices):
             indices_to_restore = [idx for idx in indices if idx < len(bin_logs)]
