@@ -8,14 +8,8 @@ import json
 from collections import Counter
 from PyPDF2 import PdfReader
 import docx
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
 from streamlit_option_menu import option_menu
-import pandas as pd
-
-
-logs = []
-chat_history = []
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
@@ -61,7 +55,6 @@ def extract_zip(zip_file):
             return files
     except zipfile.LargeZipFile:
         st.error('Error: File size is too large to open')
-        return []
 
 def extract_text(file):
     text = ""
@@ -100,6 +93,7 @@ def chunk_text(text, chunk_size=300):
 
 def post_chunks_to_api(file, chunks, collection, doc_type):
     url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/add-master-object/file/'
+    results = []
     data = {
         'chunks': chunks,
         'filename': os.path.basename(file),
@@ -109,23 +103,10 @@ def post_chunks_to_api(file, chunks, collection, doc_type):
     response = requests.post(url, json=data)
     return response.status_code, response.text
 
-@st.cache_resource
-def get_logs():
-    return []
-
-def add_log(log):
-    logs = get_logs()
-    logs.append(log)
-    st.query_params.logs=logs
-
 def process_file(file, collection, doc_type, chunk_size=300):
     text = extract_text(file)
     chunks = chunk_text(text, chunk_size)
-    status_code, response_text = post_chunks_to_api(file, chunks, collection, doc_type)
-    
- 
-    
-    return status_code, response_text
+    return post_chunks_to_api(file, chunks, collection, doc_type)
 
 def chat_with_model(query):
     api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"
@@ -148,18 +129,13 @@ def chat_with_model(query):
         return f"Error: {e}"
 
 def main():
-    global logs
-    global chat_history
-
     with st.sidebar:
-        choice = option_menu("MASTER VECTORS", ["Train MV", "Chat", "View Logs"], 
-        icons=['upload','chat', 'list'], menu_icon="server", default_index=0, orientation="Vertical")
+        choice = option_menu("MASTER VECTORS", ["Train MV", "Chat"], 
+        icons=['upload','chat'], menu_icon="server", default_index=1, orientation="Vertical")
     if choice == "Train MV":
         zip_extractor()
     elif choice == "Chat":
         example()
-    elif choice == "View Logs":
-        view_logs()
 
 def zip_extractor():
     st.title("Zip File Extractor and Text Chunker")
@@ -188,117 +164,46 @@ def zip_extractor():
             
             if st.button("Train"):
                 if collection and doc_type:
-                    with st.spinner('🛠️ Training in progress...'):
+                    with st.spinner('🛠️Training in progress...'):
                         # Filter selected files
                         to_process = [(file, collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
 
                         results = []
                         with ThreadPoolExecutor() as executor:
-                            futures = {executor.submit(process_file, file, collection, doc_type): file for file, collection, doc_type in to_process}
+                            futures = [executor.submit(process_file, file, collection, doc_type) for file, collection, doc_type in to_process]
                             for future in as_completed(futures):
                                 try:
                                     result = future.result()
-                                    results.append((futures[future], result))
+                                    results.append(result)
                                 except Exception as e:
                                     st.error(f"Error processing file: {e}")
-
-                        # Display results and add logs
-                        for file, (status_code, response_text) in results:
-                            filename = os.path.basename(file)
-                            st.success(f"Status: {filename}, {status_code}, Response: {response_text}")
-                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            log_entry = {
-                                "filename": filename,
-                                "collection": collection,
-                                "type": doc_type,
-                                "status_code": status_code,  # Assuming success for simplicity
-                                "message": response_text,
-                                "timestamp": timestamp
-                            }
-                            add_log(log_entry)
+                        
+                        # Display results
+                        for result in results:
+                            status_code, response_text = result
+                            st.write(f"Status: {status_code}, Response: {response_text}")
                 else:
                     st.error("Please enter both collection name and type.")
 
-
 def example():
-    global chat_history
+    chat_history = st.session_state.get('chat_history', [])
 
     query = st.text_input("Enter your query:")
 
     if st.button("ASK HANNA->"):
-        with st.spinner('🤔 Hanna is thinking...'):
+        with st.spinner('🤔Hanna is thinking...'):
             response = chat_with_model(query)
             chat_history.append({"role": "assistant", "content": response})
             chat_history.append({"role": "user", "content": query})
+             
+            st.session_state['chat_history'] = chat_history
 
     for message in reversed(chat_history):
         if message["role"] == "assistant":
-            st.write(f"**🤖 Hanna:** {message['content']}")
+            st.write(f"**🤖Hanna:** {message['content']}")
             st.markdown("----------------")
         elif message["role"] == "user":
-            st.write(f"**👧🏻 User:** {message['content']}")
+            st.write(f"**👧🏻User:** {message['content']}")
 
-def view_logs():
-    logs=get_logs()
-    st.title("View Logs")
-    st.caption("Select the files that you want to undo the training.")
-
-    if logs:
-        # Create DataFrame from logs
-        df_logs = pd.DataFrame(logs)
-        
-        def delete_logs(indices):
-            indices_to_drop = [idx for idx in indices if idx < len(logs)]  # Filter out invalid indices
-            indices_to_drop.sort(reverse=True)  # Sort in descending order to avoid index shifting
-            for idx in indices_to_drop:
-                log_entry = logs[idx]
-                collection = log_entry["collection"]
-                message = log_entry["message"]
-                kl(collection, message)  # Call the kl function with collection and message values
-                del logs[idx]  # Delete the log entry at the specified index
-            st.query_params.logs=logs  # Save updated logs
-            # Update the logs displayed in the UI
-            st.experimental_rerun()   
-
-        def kl(collection, message):
-            parsed_data = json.loads(message)
-            result = parsed_data["msg"]
-            url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/remove-master-objects/uuid/'
-            data = {
-                'collection': collection,
-                'uuid': result
-            }
-            response = requests.post(url, json=data)
-            
-            return response
-            
-
-        def dataframe_with_selections(df_logs):
-            df_with_selections = df_logs.copy()
-            df_with_selections.insert(0, "Delete", False)
-
-            # Get dataframe row-selections from user with st.data_editor
-            edited_df = st.data_editor(
-                df_with_selections,
-                hide_index=True,
-                column_config={"Delete": st.column_config.CheckboxColumn(required=True)},
-                disabled=df_logs.columns,
-            )
-
-            # Filter the dataframe using the temporary column, then drop the column
-            selected_rows = edited_df[edited_df.Delete]
-            return selected_rows.drop('Delete', axis=1)
-
-        selection = dataframe_with_selections(df_logs)
-        st.write("Files to Delete:")
-        st.write(selection)
-
-        if st.button("Delete"):
-            st.write("sdjb")
-            indices = selection.index.tolist()
-            delete_logs(indices)
-
-    else:
-        st.write("No logs to display.")
 if __name__ == '__main__':
     main()
