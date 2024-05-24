@@ -190,7 +190,7 @@ def main():
 
 def auth_page():
     auth_mode = st.radio("Choose Authentication Mode", ["Login", "Register"])
-
+    st.title("MASTER VECTORS")
     if auth_mode == "Login":
         st.subheader("Login")
         username = st.text_input("Username")
@@ -234,7 +234,7 @@ def zip_extractor(username):
             if "All" in selected_files:
                 selected_files = file_names
 
-            collection = st.text_input("Enter Collection Name")
+            collection = st.text_input("Enter Collection Name", value="MV001")
             st.caption("MV001 is the default one.")
             doc_type = st.text_input("Enter Type")
             
@@ -351,6 +351,9 @@ def view_logs():
         if st.button("Delete"):
             indices = selection.index.tolist()
             delete_logs(indices)
+            st.success("Files removed successfully.")
+            time.sleep(10)
+            
     else:
         st.write("No logs to display.")
 
