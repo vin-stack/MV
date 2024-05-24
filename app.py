@@ -265,21 +265,24 @@ def view_logs():
             for idx in indices_to_drop:
                 log_entry = logs[idx]
                 collection = log_entry["collection"]
-                st.balloons()
-                print(collection)
                 message = log_entry["message"]
-                st.write(collection)
                 kl(collection, message)  # Call the kl function with collection and message values
                 del logs[idx]  # Delete the log entry at the specified index
-            st.set.query_params(logs=logs)  # Save updated logs
+            st.query_params.logs=logs  # Save updated logs
             # Update the logs displayed in the UI
-            st.rerun()   
+            st.experimental_rerun()   
 
         def kl(collection, message):
-            st.write(collection)
-            st.write(message)
-            st.snow()
+            parsed_data = json.loads(message)
+            result = parsed_data["msg"]
+            url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/remove-master-objects/uuid/'
+            data = {
+                'collection': collection,
+                'uuid': result
+            }
+            response = requests.post(url, json=data)
             
+            return response
             
 
         def dataframe_with_selections(df_logs):
