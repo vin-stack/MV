@@ -264,19 +264,20 @@ def view_logs():
     if logs:
         # Create DataFrame from logs
         df_logs = pd.DataFrame(logs)
-
+        df_logs.insert(0,"Remove", " ")
         # Add a column for checkboxes
-        df_logs["Delete"] = st.data_editor(
+        
+        st.data_editor(
             df_logs,
             column_config={
-                "Delete": st.column_config.CheckboxColumn(
-                    "Delete?",
+                "Remove": st.column_config.CheckboxColumn(
+                    "Remove?",
                     help="Select log entries to delete",
                     default=False
                 )
             },
             disabled=["filename", "collection", "type", "status_code", "message", "timestamp"],
-            hide_index=True
+            hide_index=True,
         )
 
         # Check for deletion button click
