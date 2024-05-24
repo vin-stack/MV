@@ -107,6 +107,14 @@ def post_chunks_to_api(file, chunks, collection, doc_type):
     response = requests.post(url, json=data)
     return response.status_code, response.text
 
+@st.experimental_singleton
+def get_logs():
+    return []
+
+def add_log(log):
+    logs = get_logs()
+    logs.append(log)
+
 def process_file(file, collection, doc_type, chunk_size=300):
     text = extract_text(file)
     chunks = chunk_text(text, chunk_size)
