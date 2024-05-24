@@ -259,17 +259,17 @@ def view_logs():
 
     st.title("View Logs")
     if logs:
-        # Convert logs to DataFrame for easier display
-        logs_df = pd.DataFrame(logs)
+        df = pd.DataFrame(logs)
+        st.dataframe(df)
 
-        # Display logs as a table
-        st.dataframe(logs_df)
+        st.write("Delete Logs:")
+        for index, row in df.iterrows():
+            if st.button(f"Delete {row['filename']}"):
+                # Delete the log entry here
+                logs.pop(index)
+                st.experimental_set_query_params(logs=logs)
+                st.write(f"Deleted log entry for {row['filename']}")
 
-        # Add a delete button for each log entry
-        for index, row in logs_df.iterrows():
-            if st.button(f"Delete {row['filename']}",key="sdn"):
-                # Call a function to handle log deletion
-                delete_log(index)
     else:
         st.write("No logs to display.")
 
