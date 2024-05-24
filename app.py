@@ -252,7 +252,6 @@ def example():
 
 def delete_logs(indices):
     global logs
-    logs = get_logs()
     logs_df = pd.DataFrame(logs)  # Convert logs to DataFrame
     logs_df = logs_df.drop(indices).reset_index(drop=True)  # Drop rows with selected indices
     logs = logs_df.to_dict(orient="records")  # Convert DataFrame back to list of dictionaries
