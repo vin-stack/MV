@@ -255,7 +255,8 @@ def delete_logs(indices):
     logs = get_logs()
     logs = [log for i, log in enumerate(logs) if i not in indices]
     st.experimental_set_query_params(logs=logs)
-    st.write("Selected logs deleted successfully.")
+    view_logs()  # Rerun the function to update the table
+
 
 
 
