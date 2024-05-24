@@ -18,7 +18,7 @@ import time
 
 logs = []
 chat_history = []
-logs.reverse()
+
 
 # Database setup
 conn = sqlite3.connect('users.db')
@@ -297,6 +297,7 @@ def view_logs():
         #logs = reversed(logs)
         df_logs = pd.DataFrame(logs)
         df_logs['timestamp'] = pd.to_datetime(df_logs['timestamp'])
+        df_logs.sort_values(by='timestamp', ascending=False, inplace=True)
         
         def delete_logs(indices):
             indices_to_drop = [idx for idx in indices if idx < len(logs)]
