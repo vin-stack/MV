@@ -69,7 +69,7 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 def extract_all_files(zip_ref, temp_dir):
     files = []
     for root, _, filenames in os.walk(temp_dir):
-        for filename in filenames:
+        for filename in filenames):
             files.append(os.path.join(root, filename))
     return files
 
@@ -169,7 +169,7 @@ def main():
     global logs
     global chat_history
 
-    st.title("User Authentication")
+   
     
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
@@ -300,10 +300,13 @@ def view_logs():
             indices_to_drop.sort(reverse=True)
             for idx in indices_to_drop:
                 log_entry = logs[idx]
-                collection = log_entry["collection"]
-                message = log_entry["message"]
-                kl(collection, message)
-                del logs[idx]
+                if log_entry["username"] == st.session_state.username:
+                    collection = log_entry["collection"]
+                    message = log_entry["message"]
+                    kl(collection, message)
+                    del logs[idx]
+                else:
+                    st.error("Restricted: You can only delete your own logs.")
             st.query_params.logs = logs
             st.experimental_rerun()
 
