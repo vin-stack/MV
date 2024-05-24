@@ -215,22 +215,15 @@ def zip_extractor():
                         for result in results:
                             status_code, response_text = result
                             st.write(f"Status: {status_code}, Response: {response_text}")
-                            log_entry = {
-                                
-                                "collection": collection,
-                                "type": doc_type,
-                                "status_code": status_code,  # Assuming success for simplicity
-                                "message": response_text,
-                               
-                            }
-                            add_log(log_entry)
+                            
                         # Add logs for each processed file
                         for file, collection, doc_type in to_process:
                             filename = os.path.basename(file)
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             log_entry = {
                                 "filename": filename,
-                                
+                                "collection": collection,
+                                "type": doc_type,
                                 "timestamp": timestamp
                             }
                             add_log(log_entry)
