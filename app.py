@@ -253,8 +253,9 @@ def example():
 def delete_log(index):
     # Function to delete log entry by index
     logs = get_logs()
-    del logs[index]
-    st.experimental_set_query_params(logs=logs)
+    st.write("hbdhf")
+    #del logs[index]
+    #st.experimental_set_query_params(logs=logs)
 
 def view_logs():
     logs=get_logs()
