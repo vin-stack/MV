@@ -194,20 +194,18 @@ def zip_extractor():
 
                         results = []
                         with ThreadPoolExecutor() as executor:
-                            futures = [executor.submit(process_file, file, collection, doc_type) for file, collection, doc_type in to_process]
+                            futures = {executor.submit(process_file, file, collection, doc_type): file for file, collection, doc_type in to_process}
                             for future in as_completed(futures):
                                 try:
                                     result = future.result()
-                                    results.append(result)
+                                    results.append((futures[future], result))
                                 except Exception as e:
                                     st.error(f"Error processing file: {e}")
-                        
+
                         # Display results and add logs
-                        for result, (file, collection, doc_type) in zip(results, to_process):
-                            status_code, response_text = result
-                           
+                        for file, (status_code, response_text) in results:
                             filename = os.path.basename(file)
-                            st.success(f"Status: {filename,status_code}, Response: {response_text}")
+                            st.success(f"Status: {filename}, {status_code}, Response: {response_text}")
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             log_entry = {
                                 "filename": filename,
