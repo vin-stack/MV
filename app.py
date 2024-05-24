@@ -251,9 +251,10 @@ def example():
             st.write(f"**👧🏻 User:** {message['content']}")
 
 def delete_logs(indices):
-    global logs
+    logs = get_logs()  # Retrieve logs using get_logs function
     logs_df = pd.DataFrame(logs)  # Convert logs to DataFrame
-    logs_df = logs_df.drop(indices).reset_index(drop=True)  # Drop rows with selected indices
+    indices_to_drop = [idx for idx in indices if idx < len(logs_df)]  # Filter out invalid indices
+    logs_df = logs_df.drop(indices_to_drop).reset_index(drop=True)  # Drop rows with valid indices
     logs = logs_df.to_dict(orient="records")  # Convert DataFrame back to list of dictionaries
     st.experimental_set_query_params(logs=logs)  # Save updated logs
     # Update the logs displayed in the UI
