@@ -267,7 +267,7 @@ def view_logs():
 
         # Add a delete button for each log entry
         for index, row in logs_df.iterrows():
-            if st.button(f"Delete {row['filename']}"):
+            if st.button(f"Delete {row['filename']}",key="sdn"):
                 # Call a function to handle log deletion
                 delete_log(index)
     else:
