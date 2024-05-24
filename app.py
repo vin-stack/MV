@@ -258,17 +258,33 @@ def delete_log(index):
 
 def view_logs():
     logs=get_logs()
-
+    
     st.title("View Logs")
 
     if logs:
+        # Create DataFrame from logs
         df_logs = pd.DataFrame(logs)
-        df_logs["Delete"] = st.checkbox("Delete", [False] * len(logs), key="delete_checkbox")
-        if st.button("Delete File"):
+
+        # Add a column for checkboxes
+        df_logs["Delete"] = st.data_editor(
+            df_logs,
+            column_config={
+                "Delete": st.column_config.CheckboxColumn(
+                    "Delete?",
+                    help="Select log entries to delete",
+                    default=False
+                )
+            },
+            disabled=["filename", "collection", "type", "status_code", "message", "timestamp"],
+            hide_index=True
+        )
+
+        # Check for deletion button click
+        if st.button("Delete Selected Logs"):
             to_delete_indices = [i for i, checked in enumerate(df_logs["Delete"]) if checked]
-            logs = [log for i, log in enumerate(logs) if i not in to_delete_indices]
-            st.write("Files deleted successfully.")
-        st.dataframe(df_logs.drop(columns=["Delete"]))
+            delete_logs(to_delete_indices)
+            st.write("Selected logs deleted successfully.")
+
     else:
         st.write("No logs to display.")
 
