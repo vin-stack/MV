@@ -114,6 +114,7 @@ def get_logs():
 def add_log(log):
     logs = get_logs()
     logs.append(log)
+    st.experimental_set_query_params(logs=logs)
 
 def process_file(file, collection, doc_type, chunk_size=300):
     text = extract_text(file)
@@ -124,6 +125,8 @@ def process_file(file, collection, doc_type, chunk_size=300):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logs.append({
         "filename": os.path.basename(file),
+        "collection": collection,
+        "type": doc_type,
         "status_code": status_code,
         "message": response_text,
         "timestamp": timestamp
@@ -211,20 +214,18 @@ def zip_extractor():
                             status_code, response_text = result
                             st.write(f"Status: {status_code}, Response: {response_text}")
                         # Add logs for each processed file
-                        for file, _, _ in to_process:
+                        for file, collection, doc_type in to_process:
                             filename = os.path.basename(file)
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             log_entry = {
                                 "filename": filename,
-                                "collection": collection,  # Adding collection name to the log
+                                "collection": collection,
                                 "type": doc_type,
                                 "status_code": status_code,  # Assuming success for simplicity
                                 "message": response_text,
                                 "timestamp": timestamp
                             }
                             add_log(log_entry)
-                        
-                        
                 else:
                     st.error("Please enter both collection name and type.")
 
@@ -254,8 +255,8 @@ def view_logs():
     if logs:
         for log in logs:
             st.write(f"**Filename:** {log['filename']}")
-            st.write(f"**Collection:** {log['collection']}")
-            st.write(f"**Type:** {log['doc_type']}")
+            st.write(f"**Collection:** {log['collection']}")  # Display collection name
+            st.write(f"**Type:** {log['type']}")              # Display document type
             st.write(f"**Status Code:** {log['status_code']}")
             st.write(f"**Message:** {log['message']}")
             st.write(f"**Timestamp:** {log['timestamp']}")
@@ -265,3 +266,4 @@ def view_logs():
 
 if __name__ == '__main__':
     main()
+
