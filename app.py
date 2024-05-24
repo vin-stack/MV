@@ -265,6 +265,7 @@ def view_logs():
             for idx in indices_to_drop:
                 log_entry = logs[idx]
                 collection = log_entry["collection"]
+                st.balloons()
                 print(collection)
                 message = log_entry["message"]
                 st.write(collection)
@@ -277,6 +278,7 @@ def view_logs():
         def kl(collection, message):
             st.write(collection)
             st.write(message)
+            st.snow()
             
             
 
