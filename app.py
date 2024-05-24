@@ -251,7 +251,7 @@ def example():
             st.write(f"**👧🏻 User:** {message['content']}")
 
 def view_logs():
-    logs = get_logs()
+    global logs
     st.title("View Logs")
     st.caption("Select the files that you want to undo the training.")
 
@@ -260,12 +260,10 @@ def view_logs():
         df_logs = pd.DataFrame(logs)
         
         def delete_logs(indices):
-            global logs
-            logs = get_logs()  # Retrieve logs using get_logs function
-            logs_df = pd.DataFrame(logs)  # Convert logs to DataFrame
-            indices_to_drop = [idx for idx in indices if idx < len(logs_df)]  # Filter out invalid indices
-            logs_df = logs_df.drop(indices_to_drop).reset_index(drop=True)  # Drop rows with valid indices
-            logs = logs_df.to_dict(orient="records")  # Convert DataFrame back to list of dictionaries
+            indices_to_drop = [idx for idx in indices if idx < len(logs)]  # Filter out invalid indices
+            indices_to_drop.sort(reverse=True)  # Sort in descending order to avoid index shifting
+            for idx in indices_to_drop:
+                del logs[idx]  # Delete the log entry at the specified index
             st.experimental_set_query_params(logs=logs)  # Save updated logs
             # Update the logs displayed in the UI
             st.experimental_rerun()
@@ -296,7 +294,6 @@ def view_logs():
 
     else:
         st.write("No logs to display.")
-
 if __name__ == '__main__':
     main()
 
