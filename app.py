@@ -121,7 +121,7 @@ def chunk_text(text, chunk_size=300):
     return chunks
 
 def post_chunks_to_api(file, chunks, collection, doc_type):
-    url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/add-master-object/file/'
+    url = 'https://new-weaviate-chay-077e31cdeffc.herokuapp.com/add-master-object/file/'
     data = {
         'chunks': chunks,
         'filename': os.path.basename(file),
