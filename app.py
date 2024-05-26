@@ -310,7 +310,7 @@ def view_logs():
                     kl(collection, message)
                     del logs[idx]
                     st.success("Files removed successfully.")
-                    time.sleep(10)
+                    time.sleep(3)
                 else:
                     st.error("Restricted: You can only delete your own files only.")
                     time.sleep(10)
