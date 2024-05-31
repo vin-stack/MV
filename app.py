@@ -322,7 +322,8 @@ def view_logs():
         def kl(collection, message):
             parsed_data = json.loads(message)
             result = parsed_data["msg"]
-            url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/remove-master-objects/uuid/'
+            #url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/remove-master-objects/uuid/'
+            url = 'https://chay-weaviate-bef2f97c75d4.herokuapp.com/remove-master-objects/uuid/'
             data = {
                 'collection': collection,
                 'uuid': result
