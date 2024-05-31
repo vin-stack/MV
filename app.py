@@ -49,7 +49,7 @@ img = get_img_as_base64("image.jpg")
 page_bg_img = f"""
 <style>
 [data-testid="stSidebar"] > div:first-child {{
-background-image: url("https://i.ibb.co/0KykGjf/Untitled-design.png");
+background-image: url("https://i.ibb.co/RN5yJCc/Untitled-desig.png");
 background-position: left; 
 background-repeat: no-repeat;
 background-attachment: local;
