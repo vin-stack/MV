@@ -19,7 +19,7 @@ import time
 logs = []
 chat_history = []
 
-# Database setup
+# Database setups
 conn = sqlite3.connect('users.db')
 c = conn.cursor()
 c.execute('''
