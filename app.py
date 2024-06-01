@@ -19,7 +19,7 @@ import time
 logs = []
 chat_history = []
 
-# Database setups
+# Database setup
 conn = sqlite3.connect('users.db')
 c = conn.cursor()
 c.execute('''
@@ -121,8 +121,7 @@ def chunk_text(text, chunk_size=300):
     return chunks
 
 def post_chunks_to_api(file, chunks, collection, doc_type):
-    #url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/add-master-object/file/'#main
-    url = 'https://chay-weaviate-bef2f97c75d4.herokuapp.com/add-master-object/file/'#chay
+    url = 'https://chay-weaviate-bef2f97c75d4.herokuapp.com/add-master-object/file/' #chay
     data = {
         'chunks': chunks,
         'filename': os.path.basename(file),
@@ -148,9 +147,20 @@ def process_file(file, collection, doc_type, chunk_size=300):
     chunk_count = len(chunks)
     return status_code, response_text, chunk_count
 
+def process_large_file_in_batches(file, collection, doc_type, chunk_size=300, batch_size=150, delay=10):
+    text = extract_text(file)
+    chunks = chunk_text(text, chunk_size)
+    
+    for i in range(0, len(chunks), batch_size):
+        batch_chunks = chunks[i:i+batch_size]
+        status_code, response_text = post_chunks_to_api(file, batch_chunks, collection, doc_type)
+        time.sleep(delay)
+    
+    chunk_count = len(chunks)
+    return status_code, response_text, chunk_count
+
 def chat_with_model(query):
-    #api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"#main
-    api_url = "https://chay-weaviate-bef2f97c75d4.herokuapp.com/chat/"#chay      
+    api_url = "https://chay-weaviate-bef2f97c75d4.herokuapp.com/chat/" #chay      
     payload = {
         "collection": "001",
         "query": query,
@@ -245,15 +255,40 @@ def zip_extractor(username):
                     with st.spinner('🛠️ Training in progress...'):
                         to_process = [(file, collection, doc_type) for file in extracted_files if os.path.basename(file) in selected_files]
 
+                        small_files = []
+                        queue1 = []
+                        queue2 = []
+
+                        for file, collection, doc_type in to_process:
+                            text_length = len(extract_text(file))
+                            if text_length < 5000:
+                                small_files.append((file, collection, doc_type))
+                            elif 5000 <= text_length < 10000:
+                                queue1.append((file, collection, doc_type))
+                            else:
+                                queue2.append((file, collection, doc_type))
+
                         results = []
+
                         with ThreadPoolExecutor() as executor:
-                            futures = {executor.submit(process_file, file, collection, doc_type): file for file, collection, doc_type in to_process}
+                            # Process small files first
+                            futures = {executor.submit(process_file, file, collection, doc_type): file for file, collection, doc_type in small_files}
                             for future in as_completed(futures):
                                 try:
                                     result = future.result()
                                     results.append((futures[future], result))
                                 except Exception as e:
                                     st.error(f"Error processing file: {e}")
+
+                            # Process queue1 files
+                            for file, collection, doc_type in queue1:
+                                result = process_large_file_in_batches(file, collection, doc_type)
+                                results.append((file, result))
+
+                            # Process queue2 files
+                            for file, collection, doc_type in queue2:
+                                result = process_large_file_in_batches(file, collection, doc_type)
+                                results.append((file, result))
 
                         for file, (status_code, response_text, chunk_count) in results:
                             filename = os.path.basename(file)
@@ -312,7 +347,6 @@ def view_logs():
                     kl(collection, message)
                     del logs[idx]
                     st.success("Files removed successfully.")
-                    
                 else:
                     st.error("Restricted: You can only delete your own files only.")
                     time.sleep(10)
@@ -322,8 +356,7 @@ def view_logs():
         def kl(collection, message):
             parsed_data = json.loads(message)
             result = parsed_data["msg"]
-            #url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/remove-master-objects/uuid/'
-            url = 'https://chay-weaviate-bef2f97c75d4.herokuapp.com/remove-master-objects/uuid/'
+            url = 'https://chay-weaviate-bef2f97c75d4.herokuapp.com/remove-master-objects/uuid/' #chay
             data = {
                 'collection': collection,
                 'uuid': result
@@ -351,7 +384,6 @@ def view_logs():
         if st.button("Delete"):
             indices = selection.index.tolist()
             delete_logs(indices)
-            
             
     else:
         st.write("No logs to display.")
