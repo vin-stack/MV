@@ -121,8 +121,8 @@ def chunk_text(text, chunk_size=300):
     return chunks
 
 def post_chunks_to_api(file, chunks, collection, doc_type):
-    url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/add-master-object/file/'#main
-    #url = 'https://chay-weaviate-bef2f97c75d4.herokuapp.com/add-master-object/file/'#chay
+    #url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/add-master-object/file/'#main
+    url = 'https://chay-weaviate-bef2f97c75d4.herokuapp.com/add-master-object/file/'#chay
     data = {
         'chunks': chunks,
         'filename': os.path.basename(file),
@@ -149,8 +149,8 @@ def process_file(file, collection, doc_type, chunk_size=300):
     return status_code, response_text, chunk_count
 
 def chat_with_model(query):
-    api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"#main
-    #api_url = "https://chay-weaviate-bef2f97c75d4.herokuapp.com/chat/"#chay      
+    #api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/"#main
+    api_url = "https://chay-weaviate-bef2f97c75d4.herokuapp.com/chat/"#chay      
     payload = {
         "collection": "001",
         "query": query,
@@ -322,8 +322,8 @@ def view_logs():
         def kl(collection, message):
             parsed_data = json.loads(message)
             result = parsed_data["msg"]
-            url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/remove-master-objects/uuid/'
-            #url = 'https://chay-weaviate-bef2f97c75d4.herokuapp.com/remove-master-objects/uuid/'
+            #url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/remove-master-objects/uuid/'
+            url = 'https://chay-weaviate-bef2f97c75d4.herokuapp.com/remove-master-objects/uuid/'
             data = {
                 'collection': collection,
                 'uuid': result
