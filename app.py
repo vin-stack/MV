@@ -337,7 +337,7 @@ def view_logs():
         df_logs.sort_values(by='timestamp', ascending=False, inplace=True)
         
         def delete_logs(indices):
-            indices_to drop = [idx for idx in indices if idx < len(logs)]
+            indices_to_drop = [idx for idx in indices if idx < len(logs)]
             indices_to_drop.sort(reverse=True)
             for idx in indices_to_drop:
                 log_entry = logs[idx]
