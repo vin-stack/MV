@@ -102,23 +102,12 @@ def extract_text(file):
     return text
 
 def chunk_text(text, chunk_size=300):
-    words = text.split()
-    if len(words) <= chunk_size:
-        return [text]
-
-    chunks = []
-    current_chunk = []
-    current_word_count = 0
-    for word in words:
-        current_chunk.append(word)
-        current_word_count += 1
-        if current_word_count >= chunk_size:
-            chunks.append(' '.join(current_chunk))
-            current_chunk = []
-            current_word_count = 0
-    if current_chunk:
-        chunks.append(' '.join(current_chunk))
+    # Use SentenceSplitter instead of manual chunking
+    splitter = SentenceSplitter(chunk_size=chunk_size)  # Added the SentenceSplitter functionality
+    chunks = splitter.split(text)
     return chunks
+          
+
 
 def post_chunks_to_api(file, chunks, collection, doc_type):
     url = 'https://prelive-hanan-api-56a8d952b227.herokuapp.com/add-master-object/file/' #chay
