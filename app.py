@@ -15,6 +15,7 @@ import pandas as pd
 import sqlite3
 from hashlib import sha256
 import time
+from llama_index.core.node_parser import SentenceSplitter
 
 logs = []
 chat_history = []
