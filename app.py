@@ -103,9 +103,8 @@ def extract_text(file):
     return text
 
 def chunk_text(text, chunk_size=300):
-    # Use SentenceSplitter instead of manual chunking
-    splitter = SentenceSplitter(chunk_size=chunk_size)  # Added the SentenceSplitter functionality
-    chunks = splitter.split(text)
+    splitter = SentenceSplitter(chunk_size=chunk_size)  # Initialize the splitter
+    chunks = splitter.split_text(text)  # Use the correct method to split text, if available
     return chunks
           
 
