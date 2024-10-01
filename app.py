@@ -110,7 +110,7 @@ def chunk_text(text, chunk_size=300):
 
 
 def post_chunks_to_api(file, chunks, collection, doc_type):
-    url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/add-master-object/file/' #chay
+    url = 'https://hanna-enterprise-live-api-a989d07ab584.herokuapp.com/add-master-object/file/' #chay
     data = {
         'chunks': chunks,
         'filename': os.path.basename(file),
@@ -149,7 +149,7 @@ def process_large_file_in_batches(file, collection, doc_type, chunk_size=300, ba
     return status_code, response_text, chunk_count
 
 def chat_with_model(query):
-    api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/" #chay      
+    api_url = "https://hanna-enterprise-live-api-a989d07ab584.herokuapp.com/chat/" #chay      
     payload = {
         "collection": "001",
         "query": query,
@@ -345,7 +345,7 @@ def view_logs():
         def kl(collection, message):
             parsed_data = json.loads(message)
             result = parsed_data["msg"]
-            url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/remove-master-objects/uuid/' #chay
+            url = 'https://hanna-enterprise-live-api-a989d07ab584.herokuapp.com/remove-master-objects/uuid/' #chay
             data = {
                 'collection': collection,
                 'uuid': result
