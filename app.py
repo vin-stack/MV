@@ -12,8 +12,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from streamlit_option_menu import option_menu
 import pandas as pd
-import sqlite3
-from hashlib import sha256
 import time
 from llama_index.core.node_parser import SentenceSplitter
 
@@ -22,30 +20,10 @@ chat_history = []
 
 # URL options
 URL_OPTIONS = {
-    "Dev": "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com",
-    "Prelive": "https://prelive-hanan-api-56a8d952b227.herokuapp.com",
-    "Live": "https://hanna-enterprise-live-api-a989d07ab584.herokuapp.com"
+    "Production": "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com",
+    "Staging": "https://hanna-prodigy-staging-backend.herokuapp.com",
+    "Development": "https://hanna-prodigy-dev-backend.herokuapp.com"
 }
-
-# Database setup
-conn = sqlite3.connect('users.db')
-c = conn.cursor()
-c.execute('''
-          CREATE TABLE IF NOT EXISTS users
-          (username TEXT, password TEXT)
-          ''')
-conn.commit()
-
-def hash_password(password):
-    return sha256(password.encode()).hexdigest()
-
-def add_user(username, password):
-    c.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, hash_password(password)))
-    conn.commit()
-
-def authenticate_user(username, password):
-    c.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, hash_password(password)))
-    return c.fetchone() is not None
 
 def get_img_as_base64(file):
     with open(file, "rb") as f:
@@ -181,51 +159,17 @@ def main():
     selected_url = st.sidebar.selectbox("Select API Base URL", list(URL_OPTIONS.keys()))
     base_url = URL_OPTIONS[selected_url]
 
-    if 'authenticated' not in st.session_state:
-        st.session_state.authenticated = False
-    
-    if st.session_state.authenticated:
-        with st.sidebar:
-            choice = option_menu("MASTER VECTORS", ["Train MV", "Chat", "View Logs"], 
-            icons=['upload','chat', 'list'], menu_icon="server", default_index=0, orientation="Vertical")
-        if choice == "Train MV":
-            zip_extractor(st.session_state.username, base_url)
-        elif choice == "Chat":
-            example(base_url)
-        elif choice == "View Logs":
-            view_logs()
-    else:
-        auth_page()
+    with st.sidebar:
+        choice = option_menu("MASTER VECTORS", ["Train MV", "Chat", "View Logs"], 
+        icons=['upload','chat', 'list'], menu_icon="server", default_index=0, orientation="Vertical")
+    if choice == "Train MV":
+        zip_extractor(base_url)
+    elif choice == "Chat":
+        example(base_url)
+    elif choice == "View Logs":
+        view_logs()
 
-def auth_page():
-    st.title("MASTER VECTORS")
-    auth_mode = st.radio("Choose Authentication Mode", ["Login", "Register"])
-    
-    if auth_mode == "Login":
-        st.subheader("Login")
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        if st.button("Login"):
-            if authenticate_user(username, password):
-                st.success("Login successful")
-                st.session_state.authenticated = True
-                st.session_state.username = username
-                st.rerun()
-            else:
-                st.error("Invalid username or password")
-
-    elif auth_mode == "Register":
-        st.subheader("Register")
-        username = st.text_input("Choose a Username")
-        password = st.text_input("Choose a Password", type="password")
-        if st.button("Register"):
-            if username and password:
-                add_user(username, password)
-                st.success("Registration successful. You can now login.")
-            else:
-                st.error("Please enter a valid username and password")
-
-def zip_extractor(username, base_url):
+def zip_extractor(base_url):
     st.title("Zip File Extractor and Text Chunker")
 
     uploaded_file = st.file_uploader("Upload a zip file", type="zip")
@@ -296,7 +240,6 @@ def zip_extractor(username, base_url):
                                 "filename": filename,
                                 "collection": collection,
                                 "type": doc_type,
-                                "username": username,
                                 "status_code": status_code,
                                 "objects added": chunk_count,
                                 "message": response_text,
@@ -339,15 +282,11 @@ def view_logs():
             indices_to_drop.sort(reverse=True)
             for idx in indices_to_drop:
                 log_entry = logs[idx]
-                if log_entry["username"] == st.session_state.username:
-                    collection = log_entry["collection"]
-                    message = log_entry["message"]
-                    kl(collection, message)
-                    del logs[idx]
-                    st.success("Files removed successfully.")
-                else:
-                    st.error("Restricted: You can only delete your own files only.")
-                    time.sleep(10)
+                collection = log_entry["collection"]
+                message = log_entry["message"]
+                kl(collection, message)
+                del logs[idx]
+                st.success("Files removed successfully.")
             st.query_params.logs = logs
             st.rerun()
 
