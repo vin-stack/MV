@@ -20,6 +20,13 @@ from llama_index.core.node_parser import SentenceSplitter
 logs = []
 chat_history = []
 
+# URL options
+URL_OPTIONS = {
+    "Dev": "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com",
+    "Prelive": "https://prelive-hanan-api-56a8d952b227.herokuapp.com",
+    "Live": "https://hanna-enterprise-live-api-a989d07ab584.herokuapp.com"
+}
+
 # Database setup
 conn = sqlite3.connect('users.db')
 c = conn.cursor()
@@ -106,11 +113,9 @@ def chunk_text(text, chunk_size=300):
     splitter = SentenceSplitter(chunk_size=chunk_size)  # Initialize the splitter
     chunks = splitter.split_text(text)  # Use the correct method to split text, if available
     return chunks
-          
 
-
-def post_chunks_to_api(file, chunks, collection, doc_type):
-    url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/add-master-object/file/' #chay
+def post_chunks_to_api(file, chunks, collection, doc_type, base_url):
+    url = f"{base_url}/add-master-object/file/"
     data = {
         'chunks': chunks,
         'filename': os.path.basename(file),
@@ -129,27 +134,27 @@ def add_log(log):
     logs.append(log)
     st.query_params.logs = logs
 
-def process_file(file, collection, doc_type, chunk_size=300):
+def process_file(file, collection, doc_type, base_url, chunk_size=300):
     text = extract_text(file)
     chunks = chunk_text(text, chunk_size)
-    status_code, response_text = post_chunks_to_api(file, chunks, collection, doc_type)
+    status_code, response_text = post_chunks_to_api(file, chunks, collection, doc_type, base_url)
     chunk_count = len(chunks)
     return status_code, response_text, chunk_count
 
-def process_large_file_in_batches(file, collection, doc_type, chunk_size=300, batch_size=150, delay=10):
+def process_large_file_in_batches(file, collection, doc_type, base_url, chunk_size=300, batch_size=150, delay=10):
     text = extract_text(file)
     chunks = chunk_text(text, chunk_size)
     
     for i in range(0, len(chunks), batch_size):
         batch_chunks = chunks[i:i+batch_size]
-        status_code, response_text = post_chunks_to_api(file, batch_chunks, collection, doc_type)
+        status_code, response_text = post_chunks_to_api(file, batch_chunks, collection, doc_type, base_url)
         time.sleep(delay)
     
     chunk_count = len(chunks)
     return status_code, response_text, chunk_count
 
-def chat_with_model(query):
-    api_url = "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/chat/" #chay      
+def chat_with_model(query, base_url):
+    api_url = f"{base_url}/chat/"
     payload = {
         "collection": "001",
         "query": query,
@@ -172,6 +177,10 @@ def main():
     global logs
     global chat_history
 
+    st.sidebar.title("Configuration")
+    selected_url = st.sidebar.selectbox("Select API Base URL", list(URL_OPTIONS.keys()))
+    base_url = URL_OPTIONS[selected_url]
+
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
     
@@ -180,9 +189,9 @@ def main():
             choice = option_menu("MASTER VECTORS", ["Train MV", "Chat", "View Logs"], 
             icons=['upload','chat', 'list'], menu_icon="server", default_index=0, orientation="Vertical")
         if choice == "Train MV":
-            zip_extractor(st.session_state.username)
+            zip_extractor(st.session_state.username, base_url)
         elif choice == "Chat":
-            example()
+            example(base_url)
         elif choice == "View Logs":
             view_logs()
     else:
@@ -216,7 +225,7 @@ def auth_page():
             else:
                 st.error("Please enter a valid username and password")
 
-def zip_extractor(username):
+def zip_extractor(username, base_url):
     st.title("Zip File Extractor and Text Chunker")
 
     uploaded_file = st.file_uploader("Upload a zip file", type="zip")
@@ -261,7 +270,7 @@ def zip_extractor(username):
 
                         with ThreadPoolExecutor() as executor:
                             # Process small files first
-                            futures = {executor.submit(process_file, file, collection, doc_type): file for file, collection, doc_type in small_files}
+                            futures = {executor.submit(process_file, file, collection, doc_type, base_url): file for file, collection, doc_type in small_files}
                             for future in as_completed(futures):
                                 try:
                                     result = future.result()
@@ -271,12 +280,12 @@ def zip_extractor(username):
 
                             # Process queue1 files
                             for file, collection, doc_type in queue1:
-                                result = process_large_file_in_batches(file, collection, doc_type)
+                                result = process_large_file_in_batches(file, collection, doc_type, base_url)
                                 results.append((file, result))
 
                             # Process queue2 files
                             for file, collection, doc_type in queue2:
-                                result = process_large_file_in_batches(file, collection, doc_type)
+                                result = process_large_file_in_batches(file, collection, doc_type, base_url)
                                 results.append((file, result))
 
                         for file, (status_code, response_text, chunk_count) in results:
@@ -297,14 +306,14 @@ def zip_extractor(username):
                 else:
                     st.error("Please enter both collection name and type.")
 
-def example():
+def example(base_url):
     global chat_history
 
     query = st.text_input("Enter your query:")
 
     if st.button("ASK HANNA->"):
         with st.spinner('🤔 Hanna is thinking...'):
-            response = chat_with_model(query)
+            response = chat_with_model(query, base_url)
             chat_history.append({"role": "assistant", "content": response})
             chat_history.append({"role": "user", "content": query})
 
@@ -345,7 +354,7 @@ def view_logs():
         def kl(collection, message):
             parsed_data = json.loads(message)
             result = parsed_data["msg"]
-            url = 'https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com/remove-master-objects/uuid/' #chay
+            url = f"{URL_OPTIONS['Production']}/remove-master-objects/uuid/"
             data = {
                 'collection': collection,
                 'uuid': result
