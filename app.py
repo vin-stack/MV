@@ -20,9 +20,9 @@ chat_history = []
 
 # URL options
 URL_OPTIONS = {
-    "": "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com",
-    "Staging": "https://hanna-prodigy-staging-backend.herokuapp.com",
-    "Development": "https://hanna-prodigy-dev-backend.herokuapp.com"
+    "Dev": "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com",
+    "Prelive": "https://prelive-hanan-api-56a8d952b227.herokuapp.com",
+    "Live": "https://hanna-enterprise-live-api-a989d07ab584.herokuapp.com"
 }
 
 def get_img_as_base64(file):
