@@ -20,7 +20,7 @@ chat_history = []
 
 # URL options
 URL_OPTIONS = {
-    "Production": "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com",
+    "": "https://hanna-prodigy-ent-dev-backend-98b5967e61e5.herokuapp.com",
     "Staging": "https://hanna-prodigy-staging-backend.herokuapp.com",
     "Development": "https://hanna-prodigy-dev-backend.herokuapp.com"
 }
@@ -155,8 +155,8 @@ def main():
     global logs
     global chat_history
 
-    st.sidebar.title("Configuration")
-    selected_url = st.sidebar.selectbox("Select API Base URL", list(URL_OPTIONS.keys()))
+    #st.sidebar.title("Configuration")
+    selected_url = st.selectbox("Select API Base URL", list(URL_OPTIONS.keys()))
     base_url = URL_OPTIONS[selected_url]
 
     with st.sidebar:
