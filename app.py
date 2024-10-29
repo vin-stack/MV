@@ -170,7 +170,7 @@ def main():
         view_logs()
 
 def zip_extractor(base_url):
-    st.title("Zip File Extractor and Text Chunker")
+    #st.title("Zip File Extractor and Text Chunker")
 
     uploaded_file = st.file_uploader("Upload a zip file", type="zip")
 
